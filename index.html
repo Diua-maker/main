@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtGallery - Galeria de Obras de Arte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        secondary: '#FF6B6B',
+                        accent: '#4ECDC4',
+                        dark: '#181818'
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'slide-up': 'slideUp 0.8s ease-out',
+                        'slide-left': 'slideLeft 0.6s ease-out',
+                        'zoom-in': 'zoomIn 0.5s ease-out',
+                        'float': 'float 3s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(30px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        slideLeft: {
+                            '0%': { transform: 'translateX(30px)', opacity: '0' },
+                            '100%': { transform: 'translateX(0)', opacity: '1' }
+                        },
+                        zoomIn: {
+                            '0%': { transform: 'scale(0.9)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #5D5CDE 0%, #FF6B6B 50%, #4ECDC4 100%);
+        }
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .dark .glass-effect {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-dark text-gray-900 dark:text-white transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-effect">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-palette text-2xl text-primary"></i>
+                    <span class="text-xl font-bold">ArtGallery</span>
+                </div>
+                <div class="hidden md:flex space-x-6">
+                    <button onclick="showPage('home')" class="nav-btn hover:text-primary transition-colors">
+                        <i class="fas fa-home mr-2"></i>Início
+                    </button>
+                    <button onclick="showPage('gallery')" class="nav-btn hover:text-primary transition-colors">
+                        <i class="fas fa-images mr-2"></i>Galeria
+                    </button>
+                    <button onclick="showPage('about')" class="nav-btn hover:text-primary transition-colors">
+                        <i class="fas fa-info-circle mr-2"></i>Sobre
+                    </button>
+                </div>
+                <button id="mobile-menu-btn" class="md:hidden text-2xl">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 z-40 bg-black bg-opacity-50 hidden">
+        <div class="fixed top-0 right-0 w-64 h-full bg-white dark:bg-gray-800 transform translate-x-full transition-transform duration-300" id="mobile-menu-panel">
+            <div class="p-4">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-xl font-bold">Menu</span>
+                    <button id="close-mobile-menu" class="text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <button onclick="showPage('home'); closeMobileMenu()" class="block w-full text-left p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+                        <i class="fas fa-home mr-3"></i>Início
+                    </button>
+                    <button onclick="showPage('gallery'); closeMobileMenu()" class="block w-full text-left p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+                        <i class="fas fa-images mr-3"></i>Galeria
+                    </button>
+                    <button onclick="showPage('about'); closeMobileMenu()" class="block w-full text-left p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+                        <i class="fas fa-info-circle mr-3"></i>Sobre
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Home Page -->
+    <div id="home" class="page active">
+        <!-- Hero Section -->
+        <section class="min-h-screen flex items-center justify-center gradient-bg relative overflow-hidden">
+            <div class="absolute inset-0">
+                <div class="absolute top-20 left-20 w-20 h-20 bg-white bg-opacity-20 rounded-full animate-float"></div>
+                <div class="absolute bottom-20 right-20 w-32 h-32 bg-white bg-opacity-10 rounded-full animate-float" style="animation-delay: 1s;"></div>
+                <div class="absolute top-40 right-40 w-16 h-16 bg-white bg-opacity-15 rounded-full animate-float" style="animation-delay: 2s;"></div>
+            </div>
+            <div class="container mx-auto px-4 text-center text-white relative z-10">
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
+                    Bem-vindo à <span class="text-yellow-300">ArtGallery</span>
+                </h1>
+                <p class="text-xl md:text-2xl mb-8 animate-slide-up max-w-3xl mx-auto">
+                    Descubra obras de arte incríveis de artistas talentosos. Conecte-se com criadores e explore um mundo de beleza e criatividade.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up">
+                    <button onclick="showPage('gallery')" class="bg-white text-primary px-8 py-4 rounded-full font-semibold hover:bg-opacity-90 transition-all transform hover:scale-105">
+                        <i class="fas fa-images mr-2"></i>Explorar Galeria
+                    </button>
+                    <button onclick="showPage('about')" class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-primary transition-all transform hover:scale-105">
+                        <i class="fas fa-info-circle mr-2"></i>Saiba Mais
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-20 bg-gray-50 dark:bg-gray-900">
+            <div class="container mx-auto px-4">
+                <h2 class="text-4xl font-bold text-center mb-16 animate-fade-in">Recursos do ArtGallery</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 animate-zoom-in">
+                        <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-user-friends text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">Perfis de Artistas</h3>
+                        <p class="text-gray-600 dark:text-gray-300">Conheça artistas talentosos e explore suas biografias, estilos e inspirações únicos.</p>
+                    </div>
+                    <div class="text-center bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 animate-zoom-in" style="animation-delay: 0.2s;">
+                        <div class="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-images text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">Galeria Interativa</h3>
+                        <p class="text-gray-600 dark:text-gray-300">Navegue por uma coleção curada de obras de arte com descrições detalhadas e alta qualidade.</p>
+                    </div>
+                    <div class="text-center bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 animate-zoom-in" style="animation-delay: 0.4s;">
+                        <div class="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-comments text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">Contato Direto</h3>
+                        <p class="text-gray-600 dark:text-gray-300">Entre em contato facilmente com os artistas via WhatsApp, email ou telefone.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="py-20 bg-primary text-white">
+            <div class="container mx-auto px-4">
+                <div class="grid md:grid-cols-4 gap-8 text-center">
+                    <div class="animate-slide-up">
+                        <div class="text-4xl font-bold mb-2">150+</div>
+                        <div class="text-xl">Artistas</div>
+                    </div>
+                    <div class="animate-slide-up" style="animation-delay: 0.2s;">
+                        <div class="text-4xl font-bold mb-2">2,500+</div>
+                        <div class="text-xl">Obras de Arte</div>
+                    </div>
+                    <div class="animate-slide-up" style="animation-delay: 0.4s;">
+                        <div class="text-4xl font-bold mb-2">50k+</div>
+                        <div class="text-xl">Visitantes</div>
+                    </div>
+                    <div class="animate-slide-up" style="animation-delay: 0.6s;">
+                        <div class="text-4xl font-bold mb-2">25</div>
+                        <div class="text-xl">Países</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Gallery Page -->
+    <div id="gallery" class="page">
+        <div class="pt-20 pb-10 min-h-screen bg-gray-50 dark:bg-gray-900">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4 animate-fade-in">Galeria de Artistas</h1>
+                    <p class="text-xl text-gray-600 dark:text-gray-300 animate-slide-up">Explore o talento de artistas incríveis</p>
+                </div>
+
+                <!-- Search and Filter -->
+                <div class="mb-8 flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
+                    <div class="flex-1 relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="search-input" placeholder="Buscar artistas..." class="w-full pl-10 pr-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-800">
+                    </div>
+                    <select id="style-filter" class="px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-800">
+                        <option value="">Todos os estilos</option>
+                        <option value="realismo">Realismo</option>
+                        <option value="abstrato">Abstrato</option>
+                        <option value="impressionismo">Impressionismo</option>
+                        <option value="moderno">Moderno</option>
+                    </select>
+                </div>
+
+                <!-- Artists Grid -->
+                <div id="artists-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+                    <!-- Artists will be loaded here -->
+                </div>
+
+                <!-- Artist Detail Modal -->
+                <div id="artist-modal" class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden items-center justify-center p-4">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-4xl w-full max-h-screen overflow-y-auto">
+                        <div id="artist-detail-content">
+                            <!-- Artist detail content will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Artwork Detail Modal -->
+                <div id="artwork-modal" class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden items-center justify-center p-4">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-3xl w-full max-h-screen overflow-y-auto">
+                        <div id="artwork-detail-content">
+                            <!-- Artwork detail content will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Page -->
+    <div id="about" class="page">
+        <div class="pt-20 pb-10 min-h-screen">
+            <div class="container mx-auto px-4">
+                <div class="max-w-4xl mx-auto">
+                    <div class="text-center mb-12">
+                        <h1 class="text-4xl md:text-5xl font-bold mb-4 animate-fade-in">Sobre o ArtGallery</h1>
+                        <p class="text-xl text-gray-600 dark:text-gray-300 animate-slide-up">Conectando arte e artistas com o mundo</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-12 items-center mb-16">
+                        <div class="animate-slide-left">
+                            <h2 class="text-3xl font-bold mb-6">Nossa Missão</h2>
+                            <p class="text-lg text-gray-600 dark:text-gray-300 mb-6">
+                                O ArtGallery é uma plataforma dedicada a promover e conectar artistas talentosos com amantes da arte em todo o mundo. Nossa missão é democratizar o acesso à arte e fornecer aos artistas uma vitrine digital para suas criações.
+                            </p>
+                            <p class="text-lg text-gray-600 dark:text-gray-300">
+                                Acreditamos que a arte tem o poder de inspirar, transformar e unir pessoas, independentemente de fronteiras geográficas ou culturais.
+                            </p>
+                        </div>
+                        <div class="animate-slide-up">
+                            <div class="bg-gradient-to-br from-primary to-secondary rounded-2xl p-8 text-white">
+                                <i class="fas fa-lightbulb text-4xl mb-4"></i>
+                                <h3 class="text-2xl font-bold mb-4">Visão</h3>
+                                <p>Ser a principal plataforma global para descoberta e promoção de arte, criando pontes entre artistas e colecionadores.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-8 mb-16">
+                        <div class="text-center bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg animate-zoom-in">
+                            <i class="fas fa-globe text-3xl text-primary mb-4"></i>
+                            <h3 class="text-xl font-bold mb-2">Global</h3>
+                            <p class="text-gray-600 dark:text-gray-300">Conectamos artistas e amantes da arte de todo o mundo.</p>
+                        </div>
+                        <div class="text-center bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg animate-zoom-in" style="animation-delay: 0.2s;">
+                            <i class="fas fa-heart text-3xl text-secondary mb-4"></i>
+                            <h3 class="text-xl font-bold mb-2">Paixão</h3>
+                            <p class="text-gray-600 dark:text-gray-300">Impulsionados pela paixão pela arte e criatividade.</p>
+                        </div>
+                        <div class="text-center bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg animate-zoom-in" style="animation-delay: 0.4s;">
+                            <i class="fas fa-handshake text-3xl text-accent mb-4"></i>
+                            <h3 class="text-xl font-bold mb-2">Comunidade</h3>
+                            <p class="text-gray-600 dark:text-gray-300">Construindo uma comunidade forte de artistas e apreciadores.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 text-center">
+                        <h2 class="text-3xl font-bold mb-6">Entre em Contato</h2>
+                        <p class="text-lg text-gray-600 dark:text-gray-300 mb-6">
+                            Tem alguma dúvida ou gostaria de fazer parte da nossa comunidade de artistas?
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <a href="mailto:contato@artgallery.com" class="bg-primary text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition-all">
+                                <i class="fas fa-envelope mr-2"></i>contato@artgallery.com
+                            </a>
+                            <a href="tel:+5511999999999" class="bg-secondary text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition-all">
+                                <i class="fas fa-phone mr-2"></i>(11) 99999-9999
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuPanel = document.getElementById('mobile-menu-panel');
+        const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.remove('hidden');
+            setTimeout(() => {
+                mobileMenuPanel.style.transform = 'translateX(0)';
+            }, 10);
+        });
+
+        function closeMobileMenu() {
+            mobileMenuPanel.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                mobileMenu.classList.add('hidden');
+            }, 300);
+        }
+
+        closeMobileMenuBtn.addEventListener('click', closeMobileMenu);
+        mobileMenu.addEventListener('click', (e) => {
+            if (e.target === mobileMenu) {
+                closeMobileMenu();
+            }
+        });
+
+        // Page navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+            
+            if (pageId === 'gallery') {
+                loadArtists();
+            }
+        }
+
+        // Simulated Supabase data
+        const artistsData = [
+            {
+                id: 1,
+                name: "Maria Silva",
+                style: "realismo",
+                bio: "Artista especializada em retratos realistas com mais de 15 anos de experiência.",
+                location: "São Paulo, SP",
+                avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop&crop=face",
+                contact: {
+                    email: "maria@example.com",
+                    whatsapp: "5511999999999",
+                    phone: "5511888888888"
+                },
+                artworks: [
+                    {
+                        id: 101,
+                        title: "Retrato em Óleo",
+                        description: "Retrato realista pintado em tela com tinta óleo, demonstrando técnica apurada.",
+                        image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=400&fit=crop",
+                        year: 2023,
+                        medium: "Óleo sobre tela",
+                        dimensions: "60x80 cm"
+                    },
+                    {
+                        id: 102,
+                        title: "Natureza Morta",
+                        description: "Composição clássica de frutas e objetos cotidianos.",
+                        image: "https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=600&h=400&fit=crop",
+                        year: 2023,
+                        medium: "Óleo sobre tela",
+                        dimensions: "40x50 cm"
+                    }
+                ]
+            },
+            {
+                id: 2,
+                name: "João Santos",
+                style: "abstrato",
+                bio: "Artista contemporâneo focado em arte abstrata e expressionismo moderno.",
+                location: "Rio de Janeiro, RJ",
+                avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
+                contact: {
+                    email: "joao@example.com",
+                    whatsapp: "5521999999999",
+                    phone: "5521888888888"
+                },
+                artworks: [
+                    {
+                        id: 201,
+                        title: "Explosão de Cores",
+                        description: "Obra abstrata que explora a relação entre cores quentes e frias.",
+                        image: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=600&h=400&fit=crop",
+                        year: 2023,
+                        medium: "Acrílico sobre tela",
+                        dimensions: "100x120 cm"
+                    },
+                    {
+                        id: 202,
+                        title: "Movimento Perpétuo",
+                        description: "Representação abstrata do movimento e da energia vital.",
+                        image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=400&fit=crop",
+                        year: 2022,
+                        medium: "Mista sobre tela",
+                        dimensions: "80x100 cm"
+                    }
+                ]
+            },
+            {
+                id: 3,
+                name: "Ana Costa",
+                style: "impressionismo",
+                bio: "Pintora impressionista que captura a beleza das paisagens brasileiras.",
+                location: "Minas Gerais, MG",
+                avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop&crop=face",
+                contact: {
+                    email: "ana@example.com",
+                    whatsapp: "5531999999999",
+                    phone: "5531888888888"
+                },
+                artworks: [
+                    {
+                        id: 301,
+                        title: "Pôr do Sol no Campo",
+                        description: "Paisagem impressionista capturando a luz dourada do entardecer.",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop",
+                        year: 2023,
+                        medium: "Óleo sobre tela",
+                        dimensions: "70x90 cm"
+                    }
+                ]
+            },
+            {
+                id: 4,
+                name: "Carlos Oliveira",
+                style: "moderno",
+                bio: "Artista digital e escultor, explorando as fronteiras entre tecnologia e arte.",
+                location: "Brasília, DF",
+                avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face",
+                contact: {
+                    email: "carlos@example.com",
+                    whatsapp: "5561999999999",
+                    phone: "5561888888888"
+                },
+                artworks: [
+                    {
+                        id: 401,
+                        title: "Futuro Digital",
+                        description: "Obra digital que explora a relação entre humanidade e tecnologia.",
+                        image: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=600&h=400&fit=crop",
+                        year: 2023,
+                        medium: "Arte Digital",
+                        dimensions: "Digital"
+                    }
+                ]
+            }
+        ];
+
+        // Load and display artists
+        function loadArtists() {
+            const grid = document.getElementById('artists-grid');
+            grid.innerHTML = '';
+
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const styleFilter = document.getElementById('style-filter').value;
+
+            const filteredArtists = artistsData.filter(artist => {
+                const matchesSearch = artist.name.toLowerCase().includes(searchTerm) || 
+                                    artist.bio.toLowerCase().includes(searchTerm);
+                const matchesStyle = !styleFilter || artist.style === styleFilter;
+                return matchesSearch && matchesStyle;
+            });
+
+            filteredArtists.forEach((artist, index) => {
+                const artistCard = document.createElement('div');
+                artistCard.className = 'bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 cursor-pointer animate-zoom-in';
+                artistCard.style.animationDelay = `${index * 0.1}s`;
+                artistCard.innerHTML = `
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <img src="${artist.avatar}" alt="${artist.name}" class="w-16 h-16 rounded-full object-cover mr-4">
+                            <div>
+                                <h3 class="text-xl font-bold">${artist.name}</h3>
+                                <p class="text-gray-600 dark:text-gray-400">${artist.location}</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-700 dark:text-gray-300 mb-4">${artist.bio}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="bg-primary text-white px-3 py-1 rounded-full text-sm capitalize">${artist.style}</span>
+                            <span class="text-gray-500 dark:text-gray-400">${artist.artworks.length} obra${artist.artworks.length !== 1 ? 's' : ''}</span>
+                        </div>
+                    </div>
+                `;
+                artistCard.addEventListener('click', () => showArtistDetail(artist));
+                grid.appendChild(artistCard);
+            });
+        }
+
+        // Show artist detail modal
+        function showArtistDetail(artist) {
+            const modal = document.getElementById('artist-modal');
+            const content = document.getElementById('artist-detail-content');
+            
+            content.innerHTML = `
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center">
+                            <img src="${artist.avatar}" alt="${artist.name}" class="w-20 h-20 rounded-full object-cover mr-6">
+                            <div>
+                                <h2 class="text-3xl font-bold mb-2">${artist.name}</h2>
+                                <p class="text-gray-600 dark:text-gray-400 mb-2">${artist.location}</p>
+                                <span class="bg-primary text-white px-3 py-1 rounded-full text-sm capitalize">${artist.style}</span>
+                            </div>
+                        </div>
+                        <button onclick="closeArtistModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-2xl">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <p class="text-lg text-gray-700 dark:text-gray-300 mb-6">${artist.bio}</p>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
+                        <h3 class="text-lg font-bold mb-3">Entre em Contato</h3>
+                        <div class="flex flex-wrap gap-3">
+                            <a href="https://wa.me/${artist.contact.whatsapp}" target="_blank" class="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors">
+                                <i class="fab fa-whatsapp mr-2"></i>WhatsApp
+                            </a>
+                            <a href="mailto:${artist.contact.email}" class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition-colors">
+                                <i class="fas fa-envelope mr-2"></i>Email
+                            </a>
+                            <a href="tel:${artist.contact.phone}" class="bg-purple-500 text-white px-4 py-2 rounded-full hover:bg-purple-600 transition-colors">
+                                <i class="fas fa-phone mr-2"></i>Telefone
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold mb-4">Obras do Artista</h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        ${artist.artworks.map(artwork => `
+                            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" onclick="showArtworkDetail(${JSON.stringify(artwork).replace(/"/g, '&quot;')}, '${artist.name}')">
+                                <img src="${artwork.image}" alt="${artwork.title}" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h4 class="font-bold mb-2">${artwork.title}</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">${artwork.medium} - ${artwork.year}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Show artwork detail modal
+        function showArtworkDetail(artwork, artistName) {
+            const modal = document.getElementById('artwork-modal');
+            const content = document.getElementById('artwork-detail-content');
+            
+            content.innerHTML = `
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <h2 class="text-3xl font-bold">${artwork.title}</h2>
+                        <button onclick="closeArtworkModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-2xl">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <img src="${artwork.image}" alt="${artwork.title}" class="w-full max-h-96 object-cover rounded-lg mb-6">
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-xl font-bold mb-3">Descrição</h3>
+                            <p class="text-gray-700 dark:text-gray-300 mb-4">${artwork.description}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold mb-3">Detalhes</h3>
+                            <div class="space-y-2">
+                                <p><strong>Artista:</strong> ${artistName}</p>
+                                <p><strong>Ano:</strong> ${artwork.year}</p>
+                                <p><strong>Técnica:</strong> ${artwork.medium}</p>
+                                <p><strong>Dimensões:</strong> ${artwork.dimensions}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Close modals
+        function closeArtistModal() {
+            document.getElementById('artist-modal').classList.add('hidden');
+            document.getElementById('artist-modal').classList.remove('flex');
+        }
+
+        function closeArtworkModal() {
+            document.getElementById('artwork-modal').classList.add('hidden');
+            document.getElementById('artwork-modal').classList.remove('flex');
+        }
+
+        // Close modals when clicking outside
+        document.getElementById('artist-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'artist-modal') closeArtistModal();
+        });
+
+        document.getElementById('artwork-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'artwork-modal') closeArtworkModal();
+        });
+
+        // Search and filter functionality
+        document.getElementById('search-input').addEventListener('input', loadArtists);
+        document.getElementById('style-filter').addEventListener('change', loadArtists);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            if (document.getElementById('gallery').classList.contains('active')) {
+                loadArtists();
+            }
+        });
+    </script>
+</body>
+</html>

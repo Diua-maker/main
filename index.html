@@ -3,386 +3,1400 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArtGallery - Galeria de Obras de Arte</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#5D5CDE',
-                        secondary: '#FF6B6B',
-                        accent: '#4ECDC4',
-                        dark: '#181818'
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn 0.6s ease-out',
-                        'slide-up': 'slideUp 0.8s ease-out',
-                        'slide-left': 'slideLeft 0.6s ease-out',
-                        'zoom-in': 'zoomIn 0.5s ease-out',
-                        'float': 'float 3s ease-in-out infinite'
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' }
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(30px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' }
-                        },
-                        slideLeft: {
-                            '0%': { transform: 'translateX(30px)', opacity: '0' },
-                            '100%': { transform: 'translateX(0)', opacity: '1' }
-                        },
-                        zoomIn: {
-                            '0%': { transform: 'scale(0.9)', opacity: '0' },
-                            '100%': { transform: 'scale(1)', opacity: '1' }
-                        },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-10px)' }
-                        }
-                    }
-                }
+    <title>NoteForge Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --bg-card: #16161f;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-tertiary: #ec4899;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: rgba(99, 102, 241, 0.2);
+            --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.15);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        .light {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border-color: rgba(99, 102, 241, 0.15);
+            --shadow-glow: 0 4px 30px rgba(99, 102, 241, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Animated Background */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.5;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 70%);
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--accent-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .sidebar-actions {
+            padding: 15px 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-icon:hover {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        /* Categories */
+        .categories {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .category-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .category-tag {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-tag:hover, .category-tag.active {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .category-tag i {
+            margin-right: 5px;
+        }
+
+        /* Notes List */
+        .notes-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .notes-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .notes-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .notes-list::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .note-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .note-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .note-card:hover, .note-card.active {
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-glow);
+            transform: translateX(5px);
+        }
+
+        .note-card:hover::before, .note-card.active::before {
+            opacity: 1;
+        }
+
+        .note-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .note-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .note-card-pin {
+            color: var(--warning);
+            font-size: 12px;
+        }
+
+        .note-card-preview {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .note-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .note-card-date {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .note-card-category {
+            font-size: 10px;
+            padding: 3px 8px;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent-primary);
+            border-radius: 10px;
+        }
+
+        /* Main Editor */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+            overflow: hidden;
+        }
+
+        .editor-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-secondary);
+        }
+
+        .editor-title-input {
+            background: none;
+            border: none;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-family: inherit;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .editor-title-input:focus {
+            outline: none;
+        }
+
+        .editor-title-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .editor-actions .btn-icon {
+            width: 36px;
+            height: 36px;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            padding: 12px 30px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 4px;
+            padding-right: 12px;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .toolbar-group:last-child {
+            border-right: none;
+        }
+
+        .toolbar-btn {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--accent-primary);
+        }
+
+        .toolbar-btn.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .toolbar-select {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .toolbar-select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .color-picker-wrapper {
+            position: relative;
+            width: 34px;
+            height: 34px;
+        }
+
+        .color-picker-wrapper input[type="color"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .color-picker-btn {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        /* Editor Area */
+        .editor-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .editor-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .editor-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .editor-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .editor-area::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        #editor {
+            min-height: 100%;
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        #editor:empty::before {
+            content: 'Comece a escrever sua nota aqui...';
+            color: var(--text-muted);
+        }
+
+        #editor h1, #editor h2, #editor h3 {
+            margin: 1em 0 0.5em;
+            color: var(--text-primary);
+        }
+
+        #editor ul, #editor ol {
+            padding-left: 1.5em;
+            margin: 0.5em 0;
+        }
+
+        #editor blockquote {
+            border-left: 4px solid var(--accent-primary);
+            padding-left: 1em;
+            margin: 1em 0;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        #editor pre {
+            background: var(--bg-tertiary);
+            padding: 1em;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 1em 0;
+        }
+
+        #editor code {
+            background: var(--bg-tertiary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+        }
+
+        #editor a {
+            color: var(--accent-primary);
+            text-decoration: underline;
+        }
+
+        #editor img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 1em 0;
+        }
+
+        #editor table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1em 0;
+        }
+
+        #editor th, #editor td {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            text-align: left;
+        }
+
+        #editor th {
+            background: var(--bg-tertiary);
+        }
+
+        /* Status Bar */
+        .status-bar {
+            padding: 10px 30px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .status-left, .status-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-item i {
+            font-size: 11px;
+        }
+
+        .save-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .save-indicator.saved {
+            color: var(--success);
+        }
+
+        .save-indicator.saving {
+            color: var(--warning);
+        }
+
+        /* Floating Panel */
+        .floating-panel {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .floating-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 18px;
+        }
+
+        .floating-btn.primary {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .floating-btn.primary:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(99, 102, 241, 0.5);
+        }
+
+        .floating-btn.secondary {
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .floating-btn.secondary:hover {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .empty-state i {
+            font-size: 80px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            max-width: 400px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--border-color);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .category-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .category-option {
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-option:hover, .category-option.selected {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .category-option i {
+            margin-right: 6px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* Toast Notification */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            padding: 14px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
             }
         }
-    </script>
-    <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #5D5CDE 0%, #FF6B6B 50%, #4ECDC4 100%);
+
+        .toast.success .toast-icon {
+            color: var(--success);
         }
-        .glass-effect {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+
+        .toast.warning .toast-icon {
+            color: var(--warning);
         }
-        .dark .glass-effect {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+
+        .toast.error .toast-icon {
+            color: var(--danger);
         }
-        .page {
+
+        .toast-message {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 8px 0;
+            min-width: 180px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
             display: none;
         }
-        .page.active {
+
+        .context-menu.active {
             display: block;
         }
-        .loading-shimmer {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
+
+        .context-menu-item {
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
         }
-        .dark .loading-shimmer {
-            background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
-            background-size: 200% 100%;
+
+        .context-menu-item:hover {
+            background: var(--accent-primary);
+            color: white;
         }
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+
+        .context-menu-item i {
+            width: 16px;
+            text-align: center;
+        }
+
+        .context-menu-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 6px 0;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1000;
+            width: 44px;
+            height: 44px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                z-index: 999;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .editor-header {
+                padding: 70px 20px 20px;
+            }
+
+            .toolbar {
+                padding: 12px 20px;
+                overflow-x: auto;
+            }
+
+            .editor-area {
+                padding: 20px;
+            }
+
+            .status-bar {
+                padding: 10px 20px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .floating-panel {
+                bottom: 80px;
+                right: 20px;
+            }
+
+            .floating-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 16px;
+            }
+        }
+
+        /* Fullscreen Mode */
+        .fullscreen .sidebar,
+        .fullscreen .floating-panel,
+        .fullscreen .mobile-menu-btn {
+            display: none !important;
+        }
+
+        .fullscreen .main-content {
+            width: 100%;
+        }
+
+        /* Print Styles */
+        @media print {
+            .sidebar, .toolbar, .status-bar, .floating-panel {
+                display: none !important;
+            }
+
+            .main-content {
+                width: 100%;
+            }
+
+            #editor {
+                color: #000;
+            }
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .saving .save-dot {
+            animation: pulse 1s infinite;
         }
     </style>
 </head>
-<body class="bg-white dark:bg-dark text-gray-900 dark:text-white transition-colors duration-300">
-    <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 glass-effect">
-        <div class="container mx-auto px-4 py-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <i class="fas fa-palette text-2xl text-primary"></i>
-                    <span class="text-xl font-bold">ArtGallery</span>
+<body>
+    <div class="bg-pattern"></div>
+
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="app-container" id="appContainer">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-feather-alt"></i>
+                    </div>
+                    <span class="logo-text">NoteForge Pro</span>
                 </div>
-                <div class="hidden md:flex space-x-6">
-                    <button onclick="showPage('home')" class="nav-btn hover:text-primary transition-colors">
-                        <i class="fas fa-home mr-2"></i>Início
-                    </button>
-                    <button onclick="showPage('gallery')" class="nav-btn hover:text-primary transition-colors">
-                        <i class="fas fa-images mr-2"></i>Galeria
-                    </button>
-                    <button onclick="showPage('about')" class="nav-btn hover:text-primary transition-colors">
-                        <i class="fas fa-info-circle mr-2"></i>Sobre
-                    </button>
-                    <a href="painel-artista.html" class="bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition-all">
-                        <i class="fas fa-user-plus mr-2"></i>Área do Artista
-                    </a>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar notas...">
                 </div>
-                <button id="mobile-menu-btn" class="md:hidden text-2xl">
-                    <i class="fas fa-bars"></i>
+            </div>
+
+            <div class="sidebar-actions">
+                <button class="btn btn-primary" id="newNoteBtn">
+                    <i class="fas fa-plus"></i>
+                    Nova Nota
+                </button>
+                <button class="btn btn-icon" id="themeToggle" title="Alternar tema">
+                    <i class="fas fa-moon"></i>
                 </button>
             </div>
-        </div>
-    </nav>
 
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="fixed inset-0 z-40 bg-black bg-opacity-50 hidden">
-        <div class="fixed top-0 right-0 w-64 h-full bg-white dark:bg-gray-800 transform translate-x-full transition-transform duration-300" id="mobile-menu-panel">
-            <div class="p-4">
-                <div class="flex justify-between items-center mb-6">
-                    <span class="text-xl font-bold">Menu</span>
-                    <button id="close-mobile-menu" class="text-2xl">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="space-y-4">
-                    <button onclick="showPage('home'); closeMobileMenu()" class="block w-full text-left p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
-                        <i class="fas fa-home mr-3"></i>Início
-                    </button>
-                    <button onclick="showPage('gallery'); closeMobileMenu()" class="block w-full text-left p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
-                        <i class="fas fa-images mr-3"></i>Galeria
-                    </button>
-                    <button onclick="showPage('about'); closeMobileMenu()" class="block w-full text-left p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
-                        <i class="fas fa-info-circle mr-3"></i>Sobre
-                    </button>
-                    <a href="painel-artista.html" class="block w-full text-left p-3 bg-primary text-white rounded hover:bg-opacity-90">
-                        <i class="fas fa-user-plus mr-3"></i>Área do Artista
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Home Page -->
-    <div id="home" class="page active">
-        <!-- Hero Section -->
-        <section class="min-h-screen flex items-center justify-center gradient-bg relative overflow-hidden">
-            <div class="absolute inset-0">
-                <div class="absolute top-20 left-20 w-20 h-20 bg-white bg-opacity-20 rounded-full animate-float"></div>
-                <div class="absolute bottom-20 right-20 w-32 h-32 bg-white bg-opacity-10 rounded-full animate-float" style="animation-delay: 1s;"></div>
-                <div class="absolute top-40 right-40 w-16 h-16 bg-white bg-opacity-15 rounded-full animate-float" style="animation-delay: 2s;"></div>
-            </div>
-            <div class="container mx-auto px-4 text-center text-white relative z-10">
-                <h1 class="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
-                    Bem-vindo à <span class="text-yellow-300">ArtGallery</span>
-                </h1>
-                <p class="text-xl md:text-2xl mb-8 animate-slide-up max-w-3xl mx-auto">
-                    Descubra obras de arte incríveis de artistas talentosos. Conecte-se com criadores e explore um mundo de beleza e criatividade.
-                </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up">
-                    <button onclick="showPage('gallery')" class="bg-white text-primary px-8 py-4 rounded-full font-semibold hover:bg-opacity-90 transition-all transform hover:scale-105">
-                        <i class="fas fa-images mr-2"></i>Explorar Galeria
-                    </button>
-                    <button onclick="showPage('about')" class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-primary transition-all transform hover:scale-105">
-                        <i class="fas fa-info-circle mr-2"></i>Saiba Mais
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Features Section -->
-        <section class="py-20 bg-gray-50 dark:bg-gray-900">
-            <div class="container mx-auto px-4">
-                <h2 class="text-4xl font-bold text-center mb-16 animate-fade-in">Recursos do ArtGallery</h2>
-                <div class="grid md:grid-cols-3 gap-8">
-                    <div class="text-center bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 animate-zoom-in">
-                        <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                            <i class="fas fa-user-friends text-2xl text-white"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-4">Perfis de Artistas</h3>
-                        <p class="text-gray-600 dark:text-gray-300">Conheça artistas talentosos e explore suas biografias, estilos e inspirações únicos.</p>
+            <div class="categories">
+                <div class="category-title">Categorias</div>
+                <div class="category-list" id="categoryList">
+                    <div class="category-tag active" data-category="all">
+                        <i class="fas fa-layer-group"></i> Todas
                     </div>
-                    <div class="text-center bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 animate-zoom-in" style="animation-delay: 0.2s;">
-                        <div class="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-6">
-                            <i class="fas fa-images text-2xl text-white"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-4">Galeria Interativa</h3>
-                        <p class="text-gray-600 dark:text-gray-300">Navegue por uma coleção curada de obras de arte com descrições detalhadas e alta qualidade.</p>
+                    <div class="category-tag" data-category="personal">
+                        <i class="fas fa-user"></i> Pessoal
                     </div>
-                    <div class="text-center bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 animate-zoom-in" style="animation-delay: 0.4s;">
-                        <div class="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
-                            <i class="fas fa-comments text-2xl text-white"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-4">Contato Direto</h3>
-                        <p class="text-gray-600 dark:text-gray-300">Entre em contato facilmente com os artistas via WhatsApp, email ou telefone.</p>
+                    <div class="category-tag" data-category="work">
+                        <i class="fas fa-briefcase"></i> Trabalho
+                    </div>
+                    <div class="category-tag" data-category="ideas">
+                        <i class="fas fa-lightbulb"></i> Ideias
+                    </div>
+                    <div class="category-tag" data-category="tasks">
+                        <i class="fas fa-tasks"></i> Tarefas
                     </div>
                 </div>
             </div>
-        </section>
 
-        <!-- Live Stats Section -->
-        <section class="py-20 bg-primary text-white">
-            <div class="container mx-auto px-4">
-                <div class="grid md:grid-cols-4 gap-8 text-center">
-                    <div class="animate-slide-up">
-                        <div class="text-4xl font-bold mb-2" id="stats-artists">0</div>
-                        <div class="text-xl">Artistas</div>
-                    </div>
-                    <div class="animate-slide-up" style="animation-delay: 0.2s;">
-                        <div class="text-4xl font-bold mb-2" id="stats-artworks">0</div>
-                        <div class="text-xl">Obras de Arte</div>
-                    </div>
-                    <div class="animate-slide-up" style="animation-delay: 0.4s;">
-                        <div class="text-4xl font-bold mb-2" id="stats-views">0</div>
-                        <div class="text-xl">Visualizações</div>
-                    </div>
-                    <div class="animate-slide-up" style="animation-delay: 0.6s;">
-                        <div class="text-4xl font-bold mb-2" id="stats-countries">25</div>
-                        <div class="text-xl">Países</div>
-                    </div>
+            <div class="notes-list" id="notesList">
+                <!-- Notes will be rendered here -->
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="editor-header">
+                <input type="text" class="editor-title-input" id="noteTitle" placeholder="Título da nota...">
+                <div class="editor-actions">
+                    <button class="btn btn-icon" id="pinBtn" title="Fixar nota">
+                        <i class="fas fa-thumbtack"></i>
+                    </button>
+                    <button class="btn btn-icon" id="categoryBtn" title="Categoria">
+                        <i class="fas fa-tag"></i>
+                    </button>
+                    <button class="btn btn-icon" id="exportBtn" title="Exportar">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="btn btn-icon" id="fullscreenBtn" title="Tela cheia">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <button class="btn btn-icon" id="deleteBtn" title="Excluir">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
             </div>
-        </section>
-    </div>
 
-    <!-- Gallery Page -->
-    <div id="gallery" class="page">
-        <div class="pt-20 pb-10 min-h-screen bg-gray-50 dark:bg-gray-900">
-            <div class="container mx-auto px-4">
-                <div class="text-center mb-12">
-                    <h1 class="text-4xl md:text-5xl font-bold mb-4 animate-fade-in">Galeria de Artistas</h1>
-                    <p class="text-xl text-gray-600 dark:text-gray-300 animate-slide-up">Explore o talento de artistas incríveis</p>
-                </div>
-
-                <!-- Search and Filter -->
-                <div class="mb-8 flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
-                    <div class="flex-1 relative">
-                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="search-input" placeholder="Buscar artistas..." class="w-full pl-10 pr-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-800">
-                    </div>
-                    <select id="style-filter" class="px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-800">
-                        <option value="">Todos os estilos</option>
-                        <option value="realismo">Realismo</option>
-                        <option value="abstrato">Abstrato</option>
-                        <option value="impressionismo">Impressionismo</option>
-                        <option value="moderno">Moderno</option>
-                        <option value="contemporaneo">Contemporâneo</option>
-                        <option value="classico">Clássico</option>
-                        <option value="minimalista">Minimalista</option>
-                        <option value="surrealismo">Surrealismo</option>
+            <div class="toolbar" id="toolbar">
+                <div class="toolbar-group">
+                    <select class="toolbar-select" id="formatBlock">
+                        <option value="p">Parágrafo</option>
+                        <option value="h1">Título 1</option>
+                        <option value="h2">Título 2</option>
+                        <option value="h3">Título 3</option>
+                        <option value="pre">Código</option>
+                        <option value="blockquote">Citação</option>
                     </select>
                 </div>
 
-                <!-- Artists Grid -->
-                <div id="artists-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-                    <!-- Loading skeletons -->
-                    <div class="loading-skeleton bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-                        <div class="flex items-center mb-4">
-                            <div class="w-16 h-16 rounded-full loading-shimmer mr-4"></div>
-                            <div class="flex-1">
-                                <div class="h-5 loading-shimmer rounded mb-2"></div>
-                                <div class="h-4 loading-shimmer rounded w-2/3"></div>
-                            </div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" data-command="bold" title="Negrito (Ctrl+B)">
+                        <i class="fas fa-bold"></i>
+                    </button>
+                    <button class="toolbar-btn" data-command="italic" title="Itálico (Ctrl+I)">
+                        <i class="fas fa-italic"></i>
+                    </button>
+                    <button class="toolbar-btn" data-command="underline" title="Sublinhado (Ctrl+U)">
+                        <i class="fas fa-underline"></i>
+                    </button>
+                    <button class="toolbar-btn" data-command="strikeThrough" title="Tachado">
+                        <i class="fas fa-strikethrough"></i>
+                    </button>
+                </div>
+
+                <div class="toolbar-group">
+                    <div class="color-picker-wrapper">
+                        <div class="color-picker-btn">
+                            <i class="fas fa-palette"></i>
                         </div>
-                        <div class="h-4 loading-shimmer rounded mb-2"></div>
-                        <div class="h-4 loading-shimmer rounded w-3/4 mb-4"></div>
-                        <div class="flex justify-between items-center">
-                            <div class="h-6 loading-shimmer rounded w-20"></div>
-                            <div class="h-4 loading-shimmer rounded w-16"></div>
-                        </div>
+                        <input type="color" id="textColor" value="#6366f1" title="Cor do texto">
                     </div>
-                    <div class="loading-skeleton bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-                        <div class="flex items-center mb-4">
-                            <div class="w-16 h-16 rounded-full loading-shimmer mr-4"></div>
-                            <div class="flex-1">
-                                <div class="h-5 loading-shimmer rounded mb-2"></div>
-                                <div class="h-4 loading-shimmer rounded w-2/3"></div>
-                            </div>
+                    <div class="color-picker-wrapper">
+                        <div class="color-picker-btn">
+                            <i class="fas fa-fill-drip"></i>
                         </div>
-                        <div class="h-4 loading-shimmer rounded mb-2"></div>
-                        <div class="h-4 loading-shimmer rounded w-3/4 mb-4"></div>
-                        <div class="flex justify-between items-center">
-                            <div class="h-6 loading-shimmer rounded w-20"></div>
-                            <div class="h-4 loading-shimmer rounded w-16"></div>
-                        </div>
-                    </div>
-                    <div class="loading-skeleton bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-                        <div class="flex items-center mb-4">
-                            <div class="w-16 h-16 rounded-full loading-shimmer mr-4"></div>
-                            <div class="flex-1">
-                                <div class="h-5 loading-shimmer rounded mb-2"></div>
-                                <div class="h-4 loading-shimmer rounded w-2/3"></div>
-                            </div>
-                        </div>
-                        <div class="h-4 loading-shimmer rounded mb-2"></div>
-                        <div class="h-4 loading-shimmer rounded w-3/4 mb-4"></div>
-                        <div class="flex justify-between items-center">
-                            <div class="h-6 loading-shimmer rounded w-20"></div>
-                            <div class="h-4 loading-shimmer rounded w-16"></div>
-                        </div>
+                        <input type="color" id="bgColor" value="#fef08a" title="Cor de fundo">
                     </div>
                 </div>
 
-                <!-- Artist Detail Modal -->
-                <div id="artist-modal" class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden items-center justify-center p-4">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-4xl w-full max-h-screen overflow-y-auto">
-                        <div id="artist-detail-content">
-                            <!-- Artist detail content will be loaded here -->
-                        </div>
-                    </div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" data-command="justifyLeft" title="Alinhar esquerda">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                    <button class="toolbar-btn" data-command="justifyCenter" title="Centralizar">
+                        <i class="fas fa-align-center"></i>
+                    </button>
+                    <button class="toolbar-btn" data-command="justifyRight" title="Alinhar direita">
+                        <i class="fas fa-align-right"></i>
+                    </button>
+                    <button class="toolbar-btn" data-command="justifyFull" title="Justificar">
+                        <i class="fas fa-align-justify"></i>
+                    </button>
                 </div>
 
-                <!-- Artwork Detail Modal -->
-                <div id="artwork-modal" class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden items-center justify-center p-4">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-3xl w-full max-h-screen overflow-y-auto">
-                        <div id="artwork-detail-content">
-                            <!-- Artwork detail content will be loaded here -->
-                        </div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" data-command="insertUnorderedList" title="Lista">
+                        <i class="fas fa-list-ul"></i>
+                    </button>
+                    <button class="toolbar-btn" data-command="insertOrderedList" title="Lista numerada">
+                        <i class="fas fa-list-ol"></i>
+                    </button>
+                    <button class="toolbar-btn" id="checklistBtn" title="Checklist">
+                        <i class="fas fa-check-square"></i>
+                    </button>
+                </div>
+
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" id="linkBtn" title="Inserir link">
+                        <i class="fas fa-link"></i>
+                    </button>
+                    <button class="toolbar-btn" id="imageBtn" title="Inserir imagem">
+                        <i class="fas fa-image"></i>
+                    </button>
+                    <button class="toolbar-btn" id="tableBtn" title="Inserir tabela">
+                        <i class="fas fa-table"></i>
+                    </button>
+                    <button class="toolbar-btn" id="hrBtn" title="Linha horizontal">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" data-command="undo" title="Desfazer (Ctrl+Z)">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button class="toolbar-btn" data-command="redo" title="Refazer (Ctrl+Y)">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                    <button class="toolbar-btn" data-command="removeFormat" title="Remover formatação">
+                        <i class="fas fa-eraser"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="editor-container">
+                <div class="editor-area">
+                    <div id="editor" contenteditable="true"></div>
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <div class="status-left">
+                    <span class="status-item" id="wordCount">
+                        <i class="fas fa-file-word"></i>
+                        <span>0 palavras</span>
+                    </span>
+                    <span class="status-item" id="charCount">
+                        <i class="fas fa-text-width"></i>
+                        <span>0 caracteres</span>
+                    </span>
+                    <span class="status-item" id="readTime">
+                        <i class="fas fa-clock"></i>
+                        <span>0 min leitura</span>
+                    </span>
+                </div>
+                <div class="status-right">
+                    <span class="status-item save-indicator saved" id="saveIndicator">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Salvo</span>
+                    </span>
+                    <span class="status-item" id="lastModified">
+                        <i class="fas fa-calendar"></i>
+                        <span>--</span>
+                    </span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating Panel -->
+    <div class="floating-panel">
+        <button class="floating-btn secondary" id="scrollTopBtn" title="Ir ao topo">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+        <button class="floating-btn primary" id="quickAddBtn" title="Nova nota rápida">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" data-action="pin">
+            <i class="fas fa-thumbtack"></i>
+            <span>Fixar nota</span>
+        </div>
+        <div class="context-menu-item" data-action="duplicate">
+            <i class="fas fa-copy"></i>
+            <span>Duplicar</span>
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" data-action="export">
+            <i class="fas fa-download"></i>
+            <span>Exportar</span>
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" data-action="delete" style="color: var(--danger);">
+            <i class="fas fa-trash"></i>
+            <span>Excluir</span>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Category Modal -->
+    <div class="modal-overlay" id="categoryModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Selecionar Categoria</h3>
+                <button class="modal-close" onclick="closeCategoryModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="category-options" id="categoryOptions">
+                    <div class="category-option" data-category="personal">
+                        <i class="fas fa-user"></i> Pessoal
+                    </div>
+                    <div class="category-option" data-category="work">
+                        <i class="fas fa-briefcase"></i> Trabalho
+                    </div>
+                    <div class="category-option" data-category="ideas">
+                        <i class="fas fa-lightbulb"></i> Ideias
+                    </div>
+                    <div class="category-option" data-category="tasks">
+                        <i class="fas fa-tasks"></i> Tarefas
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- About Page -->
-    <div id="about" class="page">
-        <div class="pt-20 pb-10 min-h-screen">
-            <div class="container mx-auto px-4">
-                <div class="max-w-4xl mx-auto">
-                    <div class="text-center mb-12">
-                        <h1 class="text-4xl md:text-5xl font-bold mb-4 animate-fade-in">Sobre o ArtGallery</h1>
-                        <p class="text-xl text-gray-600 dark:text-gray-300 animate-slide-up">Conectando arte e artistas com o mundo</p>
-                    </div>
+    <!-- Link Modal -->
+    <div class="modal-overlay" id="linkModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Inserir Link</h3>
+                <button class="modal-close" onclick="closeLinkModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">URL</label>
+                    <input type="url" class="form-input" id="linkUrl" placeholder="https://exemplo.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Texto do link (opcional)</label>
+                    <input type="text" class="form-input" id="linkText" placeholder="Texto exibido">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeLinkModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="insertLink()">Inserir</button>
+            </div>
+        </div>
+    </div>
 
-                    <div class="grid md:grid-cols-2 gap-12 items-center mb-16">
-                        <div class="animate-slide-left">
-                            <h2 class="text-3xl font-bold mb-6">Nossa Missão</h2>
-                            <p class="text-lg text-gray-600 dark:text-gray-300 mb-6">
-                                O ArtGallery é uma plataforma dedicada a promover e conectar artistas talentosos com amantes da arte em todo o mundo. Nossa missão é democratizar o acesso à arte e fornecer aos artistas uma vitrine digital para suas criações.
-                            </p>
-                            <p class="text-lg text-gray-600 dark:text-gray-300">
-                                Acreditamos que a arte tem o poder de inspirar, transformar e unir pessoas, independentemente de fronteiras geográficas ou culturais.
-                            </p>
-                        </div>
-                        <div class="animate-slide-up">
-                            <div class="bg-gradient-to-br from-primary to-secondary rounded-2xl p-8 text-white">
-                                <i class="fas fa-lightbulb text-4xl mb-4"></i>
-                                <h3 class="text-2xl font-bold mb-4">Visão</h3>
-                                <p>Ser a principal plataforma global para descoberta e promoção de arte, criando pontes entre artistas e colecionadores.</p>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Excluir Nota</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir esta nota? Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancelar</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">Excluir</button>
+            </div>
+        </div>
+    </div>
 
-                    <div class="grid md:grid-cols-3 gap-8 mb-16">
-                        <div class="text-center bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg animate-zoom-in">
-                            <i class="fas fa-globe text-3xl text-primary mb-4"></i>
-                            <h3 class="text-xl font-bold mb-2">Global</h3>
-                            <p class="text-gray-600 dark:text-gray-300">Conectamos artistas e amantes da arte de todo o mundo.</p>
-                        </div>
-                        <div class="text-center bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg animate-zoom-in" style="animation-delay: 0.2s;">
-                            <i class="fas fa-heart text-3xl text-secondary mb-4"></i>
-                            <h3 class="text-xl font-bold mb-2">Paixão</h3>
-                            <p class="text-gray-600 dark:text-gray-300">Impulsionados pela paixão pela arte e criatividade.</p>
-                        </div>
-                        <div class="text-center bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg animate-zoom-in" style="animation-delay: 0.4s;">
-                            <i class="fas fa-handshake text-3xl text-accent mb-4"></i>
-                            <h3 class="text-xl font-bold mb-2">Comunidade</h3>
-                            <p class="text-gray-600 dark:text-gray-300">Construindo uma comunidade forte de artistas e apreciadores.</p>
-                        </div>
+    <!-- Export Modal -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Exportar Nota</h3>
+                <button class="modal-close" onclick="closeExportModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="category-options">
+                    <div class="category-option" onclick="exportNote('txt')">
+                        <i class="fas fa-file-alt"></i> TXT
                     </div>
-
-                    <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 text-center">
-                        <h2 class="text-3xl font-bold mb-6">Entre em Contato</h2>
-                        <p class="text-lg text-gray-600 dark:text-gray-300 mb-6">
-                            Tem alguma dúvida ou gostaria de fazer parte da nossa comunidade de artistas?
-                        </p>
-                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                            <a href="mailto:contato@artgallery.com" class="bg-primary text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition-all">
-                                <i class="fas fa-envelope mr-2"></i>contato@artgallery.com
-                            </a>
-                            <a href="tel:+5511999999999" class="bg-secondary text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition-all">
-                                <i class="fas fa-phone mr-2"></i>(11) 99999-9999
-                            </a>
-                        </div>
+                    <div class="category-option" onclick="exportNote('html')">
+                        <i class="fas fa-file-code"></i> HTML
+                    </div>
+                    <div class="category-option" onclick="exportNote('md')">
+                        <i class="fab fa-markdown"></i> Markdown
                     </div>
                 </div>
             </div>
@@ -390,429 +1404,725 @@
     </div>
 
     <script>
-        // Dark mode detection
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-        }
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-            if (event.matches) {
-                document.documentElement.classList.add('dark');
+        // State
+        let notes = [];
+        let currentNoteId = null;
+        let currentCategory = 'all';
+        let saveTimeout = null;
+        let contextMenuNoteId = null;
+        let isDarkMode = true;
+
+        // DOM Elements
+        const editor = document.getElementById('editor');
+        const noteTitle = document.getElementById('noteTitle');
+        const notesList = document.getElementById('notesList');
+        const searchInput = document.getElementById('searchInput');
+        const saveIndicator = document.getElementById('saveIndicator');
+
+        // Initialize
+        function init() {
+            loadNotes();
+            setupEventListeners();
+            checkTheme();
+
+            if (notes.length === 0) {
+                createNewNote();
             } else {
-                document.documentElement.classList.remove('dark');
+                loadNote(notes[0].id);
             }
-        });
 
-        // Supabase configuration (use the same as your artist panel)
-        const SUPABASE_URL = 'https://vscvathhfswotjcjswli.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzY3ZhdGhoZnN3b3RqY2pzd2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzMTk4OTcsImV4cCI6MjA3NTg5NTg5N30.gy6nxNk5HpxgXqMEEoFm5bnQyd7ZZi267EtToALqPxA';
-        
-        let supabase;
-        let artistsData = [];
-
-        // Initialize Supabase
-        try {
-            if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            }
-        } catch (error) {
-            console.log('Supabase not configured, using demo mode');
+            renderNotesList();
         }
 
-        // Demo data fallback
-        const demoArtistsData = [
-            {
-                id: 1,
-                name: "Maria Silva",
-                style: "realismo",
-                bio: "Artista especializada em retratos realistas com mais de 15 anos de experiência.",
-                location: "São Paulo, SP",
-                avatar_url: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop&crop=face",
-                phone: "5511888888888",
-                whatsapp: "5511999999999",
-                artworks: [
-                    {
-                        id: 101,
-                        title: "Retrato em Óleo",
-                        description: "Retrato realista pintado em tela com tinta óleo, demonstrando técnica apurada.",
-                        image_url: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=400&fit=crop",
-                        year: 2023,
-                        medium: "Óleo sobre tela",
-                        dimensions: "60x80 cm"
-                    },
-                    {
-                        id: 102,
-                        title: "Natureza Morta",
-                        description: "Composição clássica de frutas e objetos cotidianos.",
-                        image_url: "https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=600&h=400&fit=crop",
-                        year: 2023,
-                        medium: "Óleo sobre tela",
-                        dimensions: "40x50 cm"
-                    }
-                ]
-            },
-            {
-                id: 2,
-                name: "João Santos",
-                style: "abstrato",
-                bio: "Artista contemporâneo focado em arte abstrata e expressionismo moderno.",
-                location: "Rio de Janeiro, RJ",
-                avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
-                phone: "5521888888888",
-                whatsapp: "5521999999999",
-                artworks: [
-                    {
-                        id: 201,
-                        title: "Explosão de Cores",
-                        description: "Obra abstrata que explora a relação entre cores quentes e frias.",
-                        image_url: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=600&h=400&fit=crop",
-                        year: 2023,
-                        medium: "Acrílico sobre tela",
-                        dimensions: "100x120 cm"
-                    }
-                ]
+        // Theme
+        function checkTheme() {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                document.documentElement.classList.add('light');
+                isDarkMode = false;
+                updateThemeIcon();
             }
-        ];
-
-        // Mobile menu functionality
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const mobileMenuPanel = document.getElementById('mobile-menu-panel');
-        const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
-
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.remove('hidden');
-            setTimeout(() => {
-                mobileMenuPanel.style.transform = 'translateX(0)';
-            }, 10);
-        });
-
-        function closeMobileMenu() {
-            mobileMenuPanel.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-                mobileMenu.classList.add('hidden');
-            }, 300);
-        }
-
-        closeMobileMenuBtn.addEventListener('click', closeMobileMenu);
-        mobileMenu.addEventListener('click', (e) => {
-            if (e.target === mobileMenu) {
-                closeMobileMenu();
-            }
-        });
-
-        // Page navigation
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.getElementById(pageId).classList.add('active');
-            
-            if (pageId === 'gallery') {
-                loadArtists();
-            } else if (pageId === 'home') {
-                loadStats();
-            }
-        }
-
-        // Load artists from Supabase
-        async function loadArtistsFromSupabase() {
-            try {
-                const { data: artists, error: artistsError } = await supabase
-                    .from('artists')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (artistsError) throw artistsError;
-
-                // Load artworks for each artist
-                const { data: artworks, error: artworksError } = await supabase
-                    .from('artworks')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (artworksError) throw artworksError;
-
-                // Group artworks by artist
-                const artistsWithArtworks = artists.map(artist => ({
-                    ...artist,
-                    artworks: artworks.filter(artwork => artwork.artist_id === artist.id)
-                }));
-
-                return artistsWithArtworks;
-            } catch (error) {
-                console.error('Error loading from Supabase:', error);
-                return demoArtistsData;
-            }
-        }
-
-        // Load and display artists
-        async function loadArtists() {
-            const grid = document.getElementById('artists-grid');
-            
-            // Show loading skeletons
-            document.querySelectorAll('.loading-skeleton').forEach(skeleton => {
-                skeleton.style.display = 'block';
-            });
-
-            try {
-                // Load data from Supabase or use demo data
-                if (supabase) {
-                    artistsData = await loadArtistsFromSupabase();
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+                if (event.matches) {
+                    document.documentElement.classList.remove('light');
+                    isDarkMode = true;
                 } else {
-                    artistsData = demoArtistsData;
+                    document.documentElement.classList.add('light');
+                    isDarkMode = false;
                 }
-
-                // Hide loading skeletons
-                document.querySelectorAll('.loading-skeleton').forEach(skeleton => {
-                    skeleton.style.display = 'none';
-                });
-
-                renderArtists();
-            } catch (error) {
-                console.error('Error loading artists:', error);
-                // Hide loading skeletons and show error
-                document.querySelectorAll('.loading-skeleton').forEach(skeleton => {
-                    skeleton.style.display = 'none';
-                });
-                grid.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-gray-500">Erro ao carregar artistas. Tente novamente.</p></div>';
-            }
+                updateThemeIcon();
+            });
         }
 
-        // Render artists based on filters
-        function renderArtists() {
-            const grid = document.getElementById('artists-grid');
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            const styleFilter = document.getElementById('style-filter').value;
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.documentElement.classList.toggle('light', !isDarkMode);
+            updateThemeIcon();
+        }
 
-            const filteredArtists = artistsData.filter(artist => {
-                const matchesSearch = artist.name.toLowerCase().includes(searchTerm) || 
-                                    (artist.bio && artist.bio.toLowerCase().includes(searchTerm));
-                const matchesStyle = !styleFilter || artist.style === styleFilter;
-                return matchesSearch && matchesStyle;
+        function updateThemeIcon() {
+            const icon = document.querySelector('#themeToggle i');
+            icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // Notes CRUD - Using in-memory storage only
+        function loadNotes() {
+            // In-memory only - notes start fresh each session
+            notes = [];
+        }
+
+        function saveNotes() {
+            // In-memory only - no persistence needed
+            // Just update UI to show saved state
+        }
+
+        function createNewNote() {
+            const note = {
+                id: Date.now().toString(),
+                title: '',
+                content: '',
+                category: 'personal',
+                pinned: false,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            notes.unshift(note);
+            currentNoteId = note.id;
+
+            noteTitle.value = '';
+            editor.innerHTML = '';
+
+            renderNotesList();
+            saveNotes();
+            updateStats();
+
+            noteTitle.focus();
+            showToast('Nova nota criada!', 'success');
+        }
+
+        function loadNote(id) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+
+            currentNoteId = id;
+            noteTitle.value = note.title;
+            editor.innerHTML = note.content;
+
+            updatePinButton(note.pinned);
+            updateStats();
+            updateLastModified(note.updatedAt);
+
+            renderNotesList();
+        }
+
+        function saveCurrentNote() {
+            if (!currentNoteId) return;
+
+            const note = notes.find(n => n.id === currentNoteId);
+            if (!note) return;
+
+            note.title = noteTitle.value || 'Sem título';
+            note.content = editor.innerHTML;
+            note.updatedAt = new Date().toISOString();
+
+            saveNotes();
+            renderNotesList();
+            updateLastModified(note.updatedAt);
+
+            saveIndicator.classList.remove('saving');
+            saveIndicator.classList.add('saved');
+            saveIndicator.innerHTML = '<i class="fas fa-check-circle"></i><span>Salvo</span>';
+        }
+
+        function deleteNote(id) {
+            const index = notes.findIndex(n => n.id === id);
+            if (index === -1) return;
+
+            notes.splice(index, 1);
+            saveNotes();
+
+            if (currentNoteId === id) {
+                if (notes.length > 0) {
+                    loadNote(notes[0].id);
+                } else {
+                    createNewNote();
+                }
+            }
+
+            renderNotesList();
+            showToast('Nota excluída!', 'warning');
+        }
+
+        function duplicateNote(id) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+
+            const newNote = {
+                ...note,
+                id: Date.now().toString(),
+                title: note.title + ' (cópia)',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            notes.unshift(newNote);
+            saveNotes();
+            loadNote(newNote.id);
+            renderNotesList();
+            showToast('Nota duplicada!', 'success');
+        }
+
+        function togglePin(id) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+
+            note.pinned = !note.pinned;
+            saveNotes();
+
+            if (currentNoteId === id) {
+                updatePinButton(note.pinned);
+            }
+
+            renderNotesList();
+            showToast(note.pinned ? 'Nota fixada!' : 'Nota desafixada!', 'success');
+        }
+
+        function setCategory(category) {
+            const note = notes.find(n => n.id === currentNoteId);
+            if (!note) return;
+
+            note.category = category;
+            saveNotes();
+            renderNotesList();
+            closeCategoryModal();
+            showToast('Categoria atualizada!', 'success');
+        }
+
+        // Rendering
+        function renderNotesList() {
+            let filteredNotes = notes;
+
+            // Filter by category
+            if (currentCategory !== 'all') {
+                filteredNotes = filteredNotes.filter(n => n.category === currentCategory);
+            }
+
+            // Filter by search
+            const searchTerm = searchInput.value.toLowerCase();
+            if (searchTerm) {
+                filteredNotes = filteredNotes.filter(n =>
+                    n.title.toLowerCase().includes(searchTerm) ||
+                    n.content.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // Sort: pinned first, then by date
+            filteredNotes.sort((a, b) => {
+                if (a.pinned && !b.pinned) return -1;
+                if (!a.pinned && b.pinned) return 1;
+                return new Date(b.updatedAt) - new Date(a.updatedAt);
             });
 
-            if (filteredArtists.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full text-center py-12">
-                        <i class="fas fa-search text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
-                        <h3 class="text-xl font-bold mb-2">Nenhum artista encontrado</h3>
-                        <p class="text-gray-600 dark:text-gray-400">Tente ajustar seus filtros de busca</p>
+            if (filteredNotes.length === 0) {
+                notesList.innerHTML = `
+                    <div class="empty-state" style="padding: 40px 20px;">
+                        <i class="fas fa-sticky-note" style="font-size: 40px;"></i>
+                        <h2 style="font-size: 16px;">Nenhuma nota encontrada</h2>
+                        <p style="font-size: 13px;">Crie uma nova nota para começar</p>
                     </div>
                 `;
                 return;
             }
 
-            grid.innerHTML = filteredArtists.map((artist, index) => `
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 cursor-pointer animate-zoom-in" style="animation-delay: ${index * 0.1}s;" onclick="showArtistDetail(${JSON.stringify(artist).replace(/"/g, '&quot;')})">
-                    <div class="p-6">
-                        <div class="flex items-center mb-4">
-                            <img src="${artist.avatar_url || 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop&crop=face'}" alt="${artist.name}" class="w-16 h-16 rounded-full object-cover mr-4">
-                            <div>
-                                <h3 class="text-xl font-bold">${artist.name}</h3>
-                                <p class="text-gray-600 dark:text-gray-400">${artist.location || 'Local não informado'}</p>
-                            </div>
+            notesList.innerHTML = filteredNotes.map(note => {
+                const preview = getTextContent(note.content).substring(0, 100);
+                const date = formatDate(note.updatedAt);
+                const categoryInfo = getCategoryInfo(note.category);
+
+                return `
+                    <div class="note-card ${note.id === currentNoteId ? 'active' : ''}"
+                         data-id="${note.id}"
+                         onclick="loadNote('${note.id}')"
+                         oncontextmenu="showContextMenu(event, '${note.id}')">
+                        <div class="note-card-header">
+                            <div class="note-card-title">${note.title || 'Sem título'}</div>
+                            ${note.pinned ? '<i class="fas fa-thumbtack note-card-pin"></i>' : ''}
                         </div>
-                        <p class="text-gray-700 dark:text-gray-300 mb-4">${artist.bio || 'Biografia não informada'}</p>
-                        <div class="flex justify-between items-center">
-                            <span class="bg-primary text-white px-3 py-1 rounded-full text-sm capitalize">${artist.style || 'Não definido'}</span>
-                            <span class="text-gray-500 dark:text-gray-400">${artist.artworks.length} obra${artist.artworks.length !== 1 ? 's' : ''}</span>
+                        <div class="note-card-preview">${preview || 'Nota vazia...'}</div>
+                        <div class="note-card-footer">
+                            <span class="note-card-date">${date}</span>
+                            <span class="note-card-category">${categoryInfo.label}</span>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
-        // Load stats for home page
-        async function loadStats() {
-            try {
-                if (supabase) {
-                    const { data: artists } = await supabase.from('artists').select('id');
-                    const { data: artworks } = await supabase.from('artworks').select('views');
-                    
-                    const totalArtists = artists?.length || 0;
-                    const totalArtworks = artworks?.length || 0;
-                    const totalViews = artworks?.reduce((sum, artwork) => sum + (artwork.views || 0), 0) || 0;
+        function getCategoryInfo(category) {
+            const categories = {
+                personal: { label: 'Pessoal', icon: 'fa-user' },
+                work: { label: 'Trabalho', icon: 'fa-briefcase' },
+                ideas: { label: 'Ideias', icon: 'fa-lightbulb' },
+                tasks: { label: 'Tarefas', icon: 'fa-tasks' }
+            };
+            return categories[category] || categories.personal;
+        }
 
-                    animateCounter('stats-artists', totalArtists);
-                    animateCounter('stats-artworks', totalArtworks);
-                    animateCounter('stats-views', totalViews);
-                } else {
-                    // Demo stats
-                    animateCounter('stats-artists', 8);
-                    animateCounter('stats-artworks', 24);
-                    animateCounter('stats-views', 1250);
-                }
-            } catch (error) {
-                console.error('Error loading stats:', error);
+        function getTextContent(html) {
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            return temp.textContent || temp.innerText || '';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+
+            if (diff < 60000) return 'Agora';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)} min atrás`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)}h atrás`;
+
+            return date.toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: 'short'
+            });
+        }
+
+        // Stats
+        function updateStats() {
+            const text = getTextContent(editor.innerHTML);
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const chars = text.length;
+            const readTime = Math.ceil(words / 200);
+
+            document.querySelector('#wordCount span').textContent = `${words} palavras`;
+            document.querySelector('#charCount span').textContent = `${chars} caracteres`;
+            document.querySelector('#readTime span').textContent = `${readTime} min leitura`;
+        }
+
+        function updateLastModified(dateString) {
+            const date = new Date(dateString);
+            document.querySelector('#lastModified span').textContent =
+                date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function updatePinButton(isPinned) {
+            const btn = document.getElementById('pinBtn');
+            btn.classList.toggle('active', isPinned);
+        }
+
+        // Toolbar Commands
+        function execCommand(command, value = null) {
+            document.execCommand(command, false, value);
+            editor.focus();
+            autoSave();
+        }
+
+        // Export
+        function exportNote(format) {
+            const note = notes.find(n => n.id === currentNoteId);
+            if (!note) return;
+
+            let content, filename, mimeType;
+
+            switch (format) {
+                case 'txt':
+                    content = getTextContent(note.content);
+                    filename = `${note.title || 'nota'}.txt`;
+                    mimeType = 'text/plain';
+                    break;
+                case 'html':
+                    content = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${note.title || 'Nota'}</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+    <h1>${note.title || 'Nota'}</h1>
+    ${note.content}
+</body>
+</html>`;
+                    filename = `${note.title || 'nota'}.html`;
+                    mimeType = 'text/html';
+                    break;
+                case 'md':
+                    content = `# ${note.title || 'Nota'}\n\n${htmlToMarkdown(note.content)}`;
+                    filename = `${note.title || 'nota'}.md`;
+                    mimeType = 'text/markdown';
+                    break;
+            }
+
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            closeExportModal();
+            showToast('Nota exportada!', 'success');
+        }
+
+        function htmlToMarkdown(html) {
+            return html
+                .replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n')
+                .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n')
+                .replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n')
+                .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**')
+                .replace(/<b[^>]*>(.*?)<\/b>/gi, '**$1**')
+                .replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*')
+                .replace(/<i[^>]*>(.*?)<\/i>/gi, '*$1*')
+                .replace(/<u[^>]*>(.*?)<\/u>/gi, '_$1_')
+                .replace(/<li[^>]*>(.*?)<\/li>/gi, '- $1\n')
+                .replace(/<br\s*\/?>/gi, '\n')
+                .replace(/<p[^>]*>(.*?)<\/p>/gi, '$1\n\n')
+                .replace(/<[^>]+>/g, '')
+                .trim();
+        }
+
+        // Modals
+        function openCategoryModal() {
+            document.getElementById('categoryModal').classList.add('active');
+            const note = notes.find(n => n.id === currentNoteId);
+            if (note) {
+                document.querySelectorAll('#categoryOptions .category-option').forEach(opt => {
+                    opt.classList.toggle('selected', opt.dataset.category === note.category);
+                });
             }
         }
 
-        // Animate counter
-        function animateCounter(elementId, targetValue) {
-            const element = document.getElementById(elementId);
-            if (!element) return;
-
-            let current = 0;
-            const increment = targetValue / 50;
-            const timer = setInterval(() => {
-                current += increment;
-                if (current >= targetValue) {
-                    current = targetValue;
-                    clearInterval(timer);
-                }
-                element.textContent = Math.floor(current);
-            }, 30);
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').classList.remove('active');
         }
 
-        // Show artist detail modal
-        function showArtistDetail(artist) {
-            const modal = document.getElementById('artist-modal');
-            const content = document.getElementById('artist-detail-content');
-            
-            content.innerHTML = `
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="flex items-center">
-                            <img src="${artist.avatar_url || 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop&crop=face'}" alt="${artist.name}" class="w-20 h-20 rounded-full object-cover mr-6">
-                            <div>
-                                <h2 class="text-3xl font-bold mb-2">${artist.name}</h2>
-                                <p class="text-gray-600 dark:text-gray-400 mb-2">${artist.location || 'Local não informado'}</p>
-                                <span class="bg-primary text-white px-3 py-1 rounded-full text-sm capitalize">${artist.style || 'Não definido'}</span>
-                            </div>
-                        </div>
-                        <button onclick="closeArtistModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-2xl">
+        function openLinkModal() {
+            document.getElementById('linkModal').classList.add('active');
+            document.getElementById('linkUrl').value = '';
+            document.getElementById('linkText').value = '';
+        }
+
+        function closeLinkModal() {
+            document.getElementById('linkModal').classList.remove('active');
+        }
+
+        function insertLink() {
+            const url = document.getElementById('linkUrl').value;
+            const text = document.getElementById('linkText').value || url;
+
+            if (url) {
+                execCommand('insertHTML', `<a href="${url}" target="_blank">${text}</a>`);
+            }
+
+            closeLinkModal();
+        }
+
+        function openDeleteModal() {
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+        }
+
+        function confirmDelete() {
+            if (currentNoteId) {
+                deleteNote(currentNoteId);
+            }
+            closeDeleteModal();
+        }
+
+        function openExportModal() {
+            document.getElementById('exportModal').classList.add('active');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('active');
+        }
+
+        // Context Menu
+        function showContextMenu(e, noteId) {
+            e.preventDefault();
+            contextMenuNoteId = noteId;
+
+            const menu = document.getElementById('contextMenu');
+            menu.style.left = e.clientX + 'px';
+            menu.style.top = e.clientY + 'px';
+            menu.classList.add('active');
+
+            const note = notes.find(n => n.id === noteId);
+            const pinItem = menu.querySelector('[data-action="pin"]');
+            pinItem.innerHTML = note.pinned
+                ? '<i class="fas fa-thumbtack"></i><span>Desafixar nota</span>'
+                : '<i class="fas fa-thumbtack"></i><span>Fixar nota</span>';
+        }
+
+        function hideContextMenu() {
+            document.getElementById('contextMenu').classList.remove('active');
+        }
+
+        // Toast
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'warning' ? 'fa-exclamation-circle' : 'fa-times-circle'} toast-icon"></i>
+                <span class="toast-message">${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Auto Save
+        function autoSave() {
+            saveIndicator.classList.add('saving');
+            saveIndicator.classList.remove('saved');
+            saveIndicator.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i><span>Salvando...</span>';
+
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                saveCurrentNote();
+            }, 500);
+        }
+
+        // Insert special elements
+        function insertTable() {
+            const table = `
+                <table>
+                    <tr><th>Coluna 1</th><th>Coluna 2</th><th>Coluna 3</th></tr>
+                    <tr><td>Dados</td><td>Dados</td><td>Dados</td></tr>
+                    <tr><td>Dados</td><td>Dados</td><td>Dados</td></tr>
+                </table>
+            `;
+            execCommand('insertHTML', table);
+        }
+
+        function insertChecklist() {
+            const checklist = `
+                <ul style="list-style: none; padding-left: 0;">
+                    <li><input type="checkbox"> Item 1</li>
+                    <li><input type="checkbox"> Item 2</li>
+                    <li><input type="checkbox"> Item 3</li>
+                </ul>
+            `;
+            execCommand('insertHTML', checklist);
+        }
+
+        function insertHorizontalRule() {
+            execCommand('insertHTML', '<hr style="border: none; border-top: 2px solid var(--border-color); margin: 20px 0;">');
+        }
+
+        function insertImage() {
+            const url = window.prompt ? null : '';
+            showImagePrompt();
+        }
+
+        function showImagePrompt() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.innerHTML = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Inserir Imagem</h3>
+                        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
-                    
-                    <p class="text-lg text-gray-700 dark:text-gray-300 mb-6">${artist.bio || 'Biografia não informada'}</p>
-                    
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
-                        <h3 class="text-lg font-bold mb-3">Entre em Contato</h3>
-                        <div class="flex flex-wrap gap-3">
-                            ${artist.whatsapp ? `<a href="https://wa.me/${artist.whatsapp}" target="_blank" class="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors">
-                                <i class="fab fa-whatsapp mr-2"></i>WhatsApp
-                            </a>` : ''}
-                            <a href="mailto:contato@artgallery.com" class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition-colors">
-                                <i class="fas fa-envelope mr-2"></i>Email
-                            </a>
-                            ${artist.phone ? `<a href="tel:${artist.phone}" class="bg-purple-500 text-white px-4 py-2 rounded-full hover:bg-purple-600 transition-colors">
-                                <i class="fas fa-phone mr-2"></i>Telefone
-                            </a>` : ''}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="form-label">URL da imagem</label>
+                            <input type="url" class="form-input" id="imageUrlInput" placeholder="https://exemplo.com/imagem.jpg">
                         </div>
                     </div>
-                    
-                    <h3 class="text-2xl font-bold mb-4">Obras do Artista</h3>
-                    ${artist.artworks.length > 0 ? `
-                        <div class="grid md:grid-cols-2 gap-4">
-                            ${artist.artworks.map(artwork => `
-                                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" onclick="showArtworkDetail(${JSON.stringify(artwork).replace(/"/g, '&quot;')}, '${artist.name}')">
-                                    <img src="${artwork.image_url}" alt="${artwork.title}" class="w-full h-48 object-cover">
-                                    <div class="p-4">
-                                        <h4 class="font-bold mb-2">${artwork.title}</h4>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400">${artwork.medium || 'Técnica não informada'} - ${artwork.year || 'Ano não informado'}</p>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : `
-                        <div class="text-center py-8">
-                            <i class="fas fa-images text-4xl text-gray-300 dark:text-gray-600 mb-4"></i>
-                            <p class="text-gray-500 dark:text-gray-400">Este artista ainda não possui obras cadastradas.</p>
-                        </div>
-                    `}
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+                        <button class="btn btn-primary" onclick="doInsertImage()">Inserir</button>
+                    </div>
                 </div>
             `;
-            
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-
-            // Update artwork views
-            if (supabase) {
-                updateArtworkViews(artist.artworks);
-            }
+            document.body.appendChild(modal);
         }
 
-        // Update artwork views
-        async function updateArtworkViews(artworks) {
-            try {
-                for (const artwork of artworks) {
-                    await supabase
-                        .from('artworks')
-                        .update({ views: (artwork.views || 0) + 1 })
-                        .eq('id', artwork.id);
+        function doInsertImage() {
+            const url = document.getElementById('imageUrlInput').value;
+            if (url) {
+                execCommand('insertHTML', `<img src="${url}" alt="Imagem">`);
+            }
+            document.querySelector('.modal-overlay').remove();
+        }
+
+        // Fullscreen
+        function toggleFullscreen() {
+            document.getElementById('appContainer').classList.toggle('fullscreen');
+            const btn = document.getElementById('fullscreenBtn');
+            const isFullscreen = document.getElementById('appContainer').classList.contains('fullscreen');
+            btn.innerHTML = `<i class="fas fa-${isFullscreen ? 'compress' : 'expand'}"></i>`;
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // New note buttons
+            document.getElementById('newNoteBtn').addEventListener('click', createNewNote);
+            document.getElementById('quickAddBtn').addEventListener('click', createNewNote);
+
+            // Theme toggle
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+            // Editor events
+            editor.addEventListener('input', () => {
+                autoSave();
+                updateStats();
+            });
+
+            noteTitle.addEventListener('input', autoSave);
+
+            // Search
+            searchInput.addEventListener('input', renderNotesList);
+
+            // Category filter
+            document.getElementById('categoryList').addEventListener('click', (e) => {
+                const tag = e.target.closest('.category-tag');
+                if (tag) {
+                    document.querySelectorAll('.category-tag').forEach(t => t.classList.remove('active'));
+                    tag.classList.add('active');
+                    currentCategory = tag.dataset.category;
+                    renderNotesList();
                 }
-            } catch (error) {
-                console.error('Error updating views:', error);
-            }
+            });
+
+            // Toolbar buttons
+            document.querySelectorAll('.toolbar-btn[data-command]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    execCommand(btn.dataset.command);
+                });
+            });
+
+            // Format block
+            document.getElementById('formatBlock').addEventListener('change', (e) => {
+                execCommand('formatBlock', e.target.value);
+            });
+
+            // Color pickers
+            document.getElementById('textColor').addEventListener('input', (e) => {
+                execCommand('foreColor', e.target.value);
+            });
+
+            document.getElementById('bgColor').addEventListener('input', (e) => {
+                execCommand('hiliteColor', e.target.value);
+            });
+
+            // Special buttons
+            document.getElementById('linkBtn').addEventListener('click', openLinkModal);
+            document.getElementById('imageBtn').addEventListener('click', insertImage);
+            document.getElementById('tableBtn').addEventListener('click', insertTable);
+            document.getElementById('checklistBtn').addEventListener('click', insertChecklist);
+            document.getElementById('hrBtn').addEventListener('click', insertHorizontalRule);
+
+            // Action buttons
+            document.getElementById('pinBtn').addEventListener('click', () => {
+                if (currentNoteId) togglePin(currentNoteId);
+            });
+            document.getElementById('categoryBtn').addEventListener('click', openCategoryModal);
+            document.getElementById('exportBtn').addEventListener('click', openExportModal);
+            document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+            document.getElementById('deleteBtn').addEventListener('click', openDeleteModal);
+
+            // Category selection
+            document.getElementById('categoryOptions').addEventListener('click', (e) => {
+                const option = e.target.closest('.category-option');
+                if (option) {
+                    setCategory(option.dataset.category);
+                }
+            });
+
+            // Context menu
+            document.addEventListener('click', hideContextMenu);
+            document.getElementById('contextMenu').addEventListener('click', (e) => {
+                const item = e.target.closest('.context-menu-item');
+                if (item && contextMenuNoteId) {
+                    const action = item.dataset.action;
+                    switch (action) {
+                        case 'pin':
+                            togglePin(contextMenuNoteId);
+                            break;
+                        case 'duplicate':
+                            duplicateNote(contextMenuNoteId);
+                            break;
+                        case 'export':
+                            loadNote(contextMenuNoteId);
+                            openExportModal();
+                            break;
+                        case 'delete':
+                            currentNoteId = contextMenuNoteId;
+                            openDeleteModal();
+                            break;
+                    }
+                    hideContextMenu();
+                }
+            });
+
+            // Mobile menu
+            document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+                document.getElementById('sidebar').classList.toggle('active');
+            });
+
+            // Scroll to top
+            document.getElementById('scrollTopBtn').addEventListener('click', () => {
+                document.querySelector('.editor-area').scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    switch (e.key.toLowerCase()) {
+                        case 's':
+                            e.preventDefault();
+                            saveCurrentNote();
+                            showToast('Nota salva!', 'success');
+                            break;
+                        case 'n':
+                            e.preventDefault();
+                            createNewNote();
+                            break;
+                    }
+                }
+
+                // Escape to close modals
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                        modal.classList.remove('active');
+                    });
+                    hideContextMenu();
+                }
+            });
+
+            // Close sidebar on mobile when clicking outside
+            document.addEventListener('click', (e) => {
+                const sidebar = document.getElementById('sidebar');
+                const menuBtn = document.getElementById('mobileMenuBtn');
+                if (sidebar.classList.contains('active') &&
+                    !sidebar.contains(e.target) &&
+                    !menuBtn.contains(e.target)) {
+                    sidebar.classList.remove('active');
+                }
+            });
         }
 
-        // Show artwork detail modal
-        function showArtworkDetail(artwork, artistName) {
-            const modal = document.getElementById('artwork-modal');
-            const content = document.getElementById('artwork-detail-content');
-            
-            content.innerHTML = `
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-6">
-                        <h2 class="text-3xl font-bold">${artwork.title}</h2>
-                        <button onclick="closeArtworkModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-2xl">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    
-                    <img src="${artwork.image_url}" alt="${artwork.title}" class="w-full max-h-96 object-cover rounded-lg mb-6">
-                    
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 class="text-xl font-bold mb-3">Descrição</h3>
-                            <p class="text-gray-700 dark:text-gray-300 mb-4">${artwork.description || 'Descrição não informada'}</p>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold mb-3">Detalhes</h3>
-                            <div class="space-y-2">
-                                <p><strong>Artista:</strong> ${artistName}</p>
-                                <p><strong>Ano:</strong> ${artwork.year || 'Não informado'}</p>
-                                <p><strong>Técnica:</strong> ${artwork.medium || 'Não informada'}</p>
-                                <p><strong>Dimensões:</strong> ${artwork.dimensions || 'Não informadas'}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        // Close modals
-        function closeArtistModal() {
-            document.getElementById('artist-modal').classList.add('hidden');
-            document.getElementById('artist-modal').classList.remove('flex');
-        }
-
-        function closeArtworkModal() {
-            document.getElementById('artwork-modal').classList.add('hidden');
-            document.getElementById('artwork-modal').classList.remove('flex');
-        }
-
-        // Close modals when clicking outside
-        document.getElementById('artist-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'artist-modal') closeArtistModal();
-        });
-
-        document.getElementById('artwork-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'artwork-modal') closeArtworkModal();
-        });
-
-        // Search and filter functionality
-        document.getElementById('search-input').addEventListener('input', renderArtists);
-        document.getElementById('style-filter').addEventListener('change', renderArtists);
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            loadStats();
-        });
+        // Initialize app
+        init();
     </script>
 </body>
 </html>
+

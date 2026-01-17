@@ -1,2128 +1,737 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-MZ">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NoteForge Pro</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Minha Biblioteca On - Moçambique Digital</title>
+    
+    <!-- Scripts & Estilos Externos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #12121a;
-            --bg-tertiary: #1a1a25;
-            --bg-card: #16161f;
-            --accent-primary: #6366f1;
-            --accent-secondary: #8b5cf6;
-            --accent-tertiary: #ec4899;
-            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border-color: rgba(99, 102, 241, 0.2);
-            --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.15);
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
+            --teal-600: #0d9488;
+            --teal-700: #0f766e;
         }
-
-        .light {
-            --bg-primary: #f8fafc;
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #f1f5f9;
-            --bg-card: #ffffff;
-            --text-primary: #1e293b;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
-            --border-color: rgba(99, 102, 241, 0.15);
-            --shadow-glow: 0 4px 30px rgba(99, 102, 241, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Animated Background */
-        .bg-pattern {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.5;
-            background:
-                radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 70%);
-        }
-
-        .app-container {
-            display: flex;
-            height: 100vh;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 300px;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .logo-icon {
-            width: 45px;
-            height: 45px;
-            background: var(--accent-gradient);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            color: white;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-        }
-
-        .logo-text {
-            font-size: 22px;
-            font-weight: 700;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .search-box {
-            position: relative;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 12px 16px 12px 44px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 14px;
-            font-family: inherit;
-            transition: all 0.3s ease;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-
-        .sidebar-actions {
-            padding: 15px 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 10px;
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            flex: 1;
-            background: var(--accent-gradient);
-            color: white;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-        }
-
-        .btn-icon {
-            width: 40px;
-            height: 40px;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-icon:hover {
-            background: var(--accent-primary);
-            color: white;
-            border-color: var(--accent-primary);
-        }
-
-        /* Categories */
-        .categories {
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .category-title {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-        }
-
-        .category-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .category-tag {
-            padding: 6px 12px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            font-size: 12px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .category-tag:hover, .category-tag.active {
-            background: var(--accent-primary);
-            color: white;
-            border-color: var(--accent-primary);
-        }
-
-        .category-tag i {
-            margin-right: 5px;
-        }
-
-        /* Notes List */
-        .notes-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-        }
-
-        .notes-list::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .notes-list::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .notes-list::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 3px;
-        }
-
-        .note-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .note-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--accent-gradient);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .note-card:hover, .note-card.active {
-            border-color: var(--accent-primary);
-            box-shadow: var(--shadow-glow);
-            transform: translateX(5px);
-        }
-
-        .note-card:hover::before, .note-card.active::before {
-            opacity: 1;
-        }
-
-        .note-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 8px;
-        }
-
-        .note-card-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-primary);
-            display: -webkit-box;
-            -webkit-line-clamp: 1;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .note-card-pin {
-            color: var(--warning);
-            font-size: 12px;
-        }
-
-        .note-card-preview {
-            font-size: 13px;
-            color: var(--text-secondary);
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            margin-bottom: 12px;
-        }
-
-        .note-card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .note-card-date {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        .note-card-category {
-            font-size: 10px;
-            padding: 3px 8px;
-            background: rgba(99, 102, 241, 0.15);
-            color: var(--accent-primary);
-            border-radius: 10px;
-        }
-
-        /* Main Editor */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: var(--bg-primary);
-            overflow: hidden;
-        }
-
-        .editor-header {
-            padding: 20px 30px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--bg-secondary);
-        }
-
-        .editor-title-input {
-            background: none;
-            border: none;
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--text-primary);
-            font-family: inherit;
-            width: 100%;
-            max-width: 500px;
-        }
-
-        .editor-title-input:focus {
-            outline: none;
-        }
-
-        .editor-title-input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .editor-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .editor-actions .btn-icon {
-            width: 36px;
-            height: 36px;
-        }
-
-        /* Toolbar */
-        .toolbar {
-            padding: 12px 30px;
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .toolbar-group {
-            display: flex;
-            gap: 4px;
-            padding-right: 12px;
-            border-right: 1px solid var(--border-color);
-        }
-
-        .toolbar-group:last-child {
-            border-right: none;
-        }
-
-        .toolbar-btn {
-            width: 34px;
-            height: 34px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: transparent;
-            border: none;
-            border-radius: 8px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 14px;
-        }
-
-        .toolbar-btn:hover {
-            background: var(--bg-tertiary);
-            color: var(--accent-primary);
-        }
-
-        .toolbar-btn.active {
-            background: var(--accent-primary);
-            color: white;
-        }
-
-        .toolbar-select {
-            padding: 6px 12px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        .toolbar-select:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-        }
-
-        .color-picker-wrapper {
-            position: relative;
-            width: 34px;
-            height: 34px;
-        }
-
-        .color-picker-wrapper input[type="color"] {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .color-picker-btn {
-            width: 100%;
-            height: 100%;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            pointer-events: none;
-        }
-
-        /* Editor Area */
-        .editor-container {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-        }
-
-        .editor-area {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
-        }
-
-        .editor-area::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .editor-area::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .editor-area::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
-        }
-
-        #editor {
-            min-height: 100%;
-            font-size: 16px;
-            line-height: 1.8;
-            color: var(--text-primary);
-            outline: none;
-        }
-
-        #editor:empty::before {
-            content: 'Comece a escrever sua nota aqui...';
-            color: var(--text-muted);
-        }
-
-        #editor h1, #editor h2, #editor h3 {
-            margin: 1em 0 0.5em;
-            color: var(--text-primary);
-        }
-
-        #editor ul, #editor ol {
-            padding-left: 1.5em;
-            margin: 0.5em 0;
-        }
-
-        #editor blockquote {
-            border-left: 4px solid var(--accent-primary);
-            padding-left: 1em;
-            margin: 1em 0;
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-
-        #editor pre {
-            background: var(--bg-tertiary);
-            padding: 1em;
-            border-radius: 8px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            overflow-x: auto;
-            margin: 1em 0;
-        }
-
-        #editor code {
-            background: var(--bg-tertiary);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-        }
-
-        #editor a {
-            color: var(--accent-primary);
-            text-decoration: underline;
-        }
-
-        #editor img {
-            max-width: 100%;
-            border-radius: 8px;
-            margin: 1em 0;
-        }
-
-        #editor table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1em 0;
-        }
-
-        #editor th, #editor td {
-            border: 1px solid var(--border-color);
-            padding: 10px;
-            text-align: left;
-        }
-
-        #editor th {
-            background: var(--bg-tertiary);
-        }
-
-        /* Status Bar */
-        .status-bar {
-            padding: 10px 30px;
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .status-left, .status-right {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .status-item i {
-            font-size: 11px;
-        }
-
-        .save-indicator {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .save-indicator.saved {
-            color: var(--success);
-        }
-
-        .save-indicator.saving {
-            color: var(--warning);
-        }
-
-        /* Floating Panel */
-        .floating-panel {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 100;
-        }
-
-        .floating-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 18px;
-        }
-
-        .floating-btn.primary {
-            background: var(--accent-gradient);
-            color: white;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
-        }
-
-        .floating-btn.primary:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(99, 102, 241, 0.5);
-        }
-
-        .floating-btn.secondary {
-            background: var(--bg-card);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
-        }
-
-        .floating-btn.secondary:hover {
-            background: var(--accent-primary);
-            color: white;
-            border-color: var(--accent-primary);
-        }
-
-        /* Empty State */
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            text-align: center;
-            padding: 40px;
-        }
-
-        .empty-state i {
-            font-size: 80px;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 20px;
-        }
-
-        .empty-state h2 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: var(--text-primary);
-        }
-
-        .empty-state p {
-            color: var(--text-secondary);
-            max-width: 400px;
-        }
-
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            padding: 30px;
-            width: 90%;
-            max-width: 500px;
-            border: 1px solid var(--border-color);
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.active .modal {
-            transform: scale(1);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-title {
-            font-size: 20px;
-            font-weight: 600;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 20px;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .modal-close:hover {
-            color: var(--danger);
-        }
-
-        .modal-body {
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px 16px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-
-        .category-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .category-option {
-            padding: 8px 16px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            font-size: 13px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .category-option:hover, .category-option.selected {
-            background: var(--accent-primary);
-            color: white;
-            border-color: var(--accent-primary);
-        }
-
-        .category-option i {
-            margin-right: 6px;
-        }
-
-        .modal-footer {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        .btn-secondary {
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-card);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        /* Toast Notification */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .toast {
-            padding: 14px 20px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .toast.success .toast-icon {
-            color: var(--success);
-        }
-
-        .toast.warning .toast-icon {
-            color: var(--warning);
-        }
-
-        .toast.error .toast-icon {
-            color: var(--danger);
-        }
-
-        .toast-message {
-            font-size: 14px;
-            color: var(--text-primary);
-        }
-
-        /* Context Menu */
-        .context-menu {
-            position: fixed;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 8px 0;
-            min-width: 180px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            z-index: 1001;
-            display: none;
-        }
-
-        .context-menu.active {
-            display: block;
-        }
-
-        .context-menu-item {
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            font-size: 13px;
-            color: var(--text-secondary);
-            transition: all 0.2s ease;
-        }
-
-        .context-menu-item:hover {
-            background: var(--accent-primary);
-            color: white;
-        }
-
-        .context-menu-item i {
-            width: 16px;
-            text-align: center;
-        }
-
-        .context-menu-divider {
-            height: 1px;
-            background: var(--border-color);
-            margin: 6px 0;
-        }
-
-        /* Mobile Menu Button */
-        .mobile-menu-btn {
-            display: none;
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 1000;
-            width: 44px;
-            height: 44px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-size: 18px;
-            cursor: pointer;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .mobile-menu-btn {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100%;
-                z-index: 999;
-                transform: translateX(-100%);
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .editor-header {
-                padding: 70px 20px 20px;
-            }
-
-            .toolbar {
-                padding: 12px 20px;
-                overflow-x: auto;
-            }
-
-            .editor-area {
-                padding: 20px;
-            }
-
-            .status-bar {
-                padding: 10px 20px;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-
-            .floating-panel {
-                bottom: 80px;
-                right: 20px;
-            }
-
-            .floating-btn {
-                width: 44px;
-                height: 44px;
-                font-size: 16px;
-            }
-        }
-
-        /* Fullscreen Mode */
-        .fullscreen .sidebar,
-        .fullscreen .floating-panel,
-        .fullscreen .mobile-menu-btn {
-            display: none !important;
-        }
-
-        .fullscreen .main-content {
-            width: 100%;
-        }
-
-        /* Print Styles */
-        @media print {
-            .sidebar, .toolbar, .status-bar, .floating-panel {
-                display: none !important;
-            }
-
-            .main-content {
-                width: 100%;
-            }
-
-            #editor {
-                color: #000;
-            }
-        }
-
-        /* Animations */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .saving .save-dot {
-            animation: pulse 1s infinite;
-        }
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            scroll-behavior: smooth;
+        }
+        .font-serif { font-family: 'Lora', serif; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Animações */
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Estilo do Livro */
+        .book-container {
+            perspective: 1500px;
+        }
+        .book-spine-shadow {
+            background: linear-gradient(to right, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.02) 40%, rgba(0,0,0,0.02) 60%, rgba(0,0,0,0.1) 100%);
+        }
+        .page-texture {
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+        }
+
+        /* Classes de utilidade */
+        .btn-teal { @apply bg-teal-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-teal-700 transition-all active:scale-95 shadow-lg shadow-teal-600/20; }
+        input, textarea, select { color: #111827 !important; } /* Fix para visibilidade do texto */
     </style>
 </head>
 <body>
-    <div class="bg-pattern"></div>
 
-    <button class="mobile-menu-btn" id="mobileMenuBtn">
-        <i class="fas fa-bars"></i>
-    </button>
-
-    <div class="app-container" id="appContainer">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <div class="logo-icon">
-                        <i class="fas fa-feather-alt"></i>
+    <!-- Navegação -->
+    <nav class="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <a href="#" onclick="navigateTo('home')" class="flex items-center gap-3 group">
+                    <div class="w-12 h-12 bg-teal-600 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg group-hover:rotate-6 transition-transform">M</div>
+                    <div class="hidden sm:block">
+                        <span class="block font-black text-xl leading-none text-gray-900">Minha Biblioteca On</span>
+                        <span class="text-[10px] uppercase tracking-[0.2em] text-teal-600 font-bold">Moçambique Digital</span>
                     </div>
-                    <span class="logo-text">NoteForge Pro</span>
-                </div>
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Buscar notas...">
-                </div>
-            </div>
+                </a>
 
-            <div class="sidebar-actions">
-                <button class="btn btn-primary" id="newNoteBtn">
-                    <i class="fas fa-plus"></i>
-                    Nova Nota
-                </button>
-                <button class="btn btn-icon" id="themeToggle" title="Alternar tema">
-                    <i class="fas fa-moon"></i>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" onclick="navigateTo('home')" class="text-sm font-bold text-gray-600 hover:text-teal-600 transition-colors">Início</a>
+                    <a href="#" onclick="navigateTo('catalog')" class="text-sm font-bold text-gray-600 hover:text-teal-600 transition-colors">Catálogo</a>
+                    <a href="#" onclick="navigateTo('support')" class="text-sm font-bold text-gray-600 hover:text-teal-600 transition-colors">Apoio</a>
+                    <div id="admin-nav-area">
+                        <!-- Renderizado via JS -->
+                    </div>
+                </div>
+
+                <button class="md:hidden text-gray-500 text-2xl" onclick="toggleMobileMenu()">
+                    <i class="fa-solid fa-bars"></i>
                 </button>
             </div>
+        </div>
+    </nav>
 
-            <div class="categories">
-                <div class="category-title">Categorias</div>
-                <div class="category-list" id="categoryList">
-                    <div class="category-tag active" data-category="all">
-                        <i class="fas fa-layer-group"></i> Todas
-                    </div>
-                    <div class="category-tag" data-category="personal">
-                        <i class="fas fa-user"></i> Pessoal
-                    </div>
-                    <div class="category-tag" data-category="work">
-                        <i class="fas fa-briefcase"></i> Trabalho
-                    </div>
-                    <div class="category-tag" data-category="ideas">
-                        <i class="fas fa-lightbulb"></i> Ideias
-                    </div>
-                    <div class="category-tag" data-category="tasks">
-                        <i class="fas fa-tasks"></i> Tarefas
+    <!-- Menu Mobile -->
+    <div id="mobile-menu" class="hidden fixed inset-0 z-[60] bg-white p-8">
+        <div class="flex justify-between mb-12">
+            <span class="font-black text-xl">Menu</span>
+            <button onclick="toggleMobileMenu()" class="text-3xl text-gray-400">&times;</button>
+        </div>
+        <div class="flex flex-col gap-8">
+            <a href="#" onclick="navigateTo('home'); toggleMobileMenu()" class="text-2xl font-bold">Início</a>
+            <a href="#" onclick="navigateTo('catalog'); toggleMobileMenu()" class="text-2xl font-bold">Catálogo</a>
+            <a href="#" onclick="navigateTo('support'); toggleMobileMenu()" class="text-2xl font-bold">Apoio</a>
+            <div id="admin-nav-mobile" class="pt-8 border-t border-gray-100"></div>
+        </div>
+    </div>
+
+    <!-- Áreas de Conteúdo (SPA) -->
+    <div id="page-home" class="page-content">
+        <!-- Hero -->
+        <section class="relative h-[650px] flex items-center text-white overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover scale-105" alt="">
+            <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
+            <div class="relative z-10 max-w-7xl mx-auto px-6 w-full">
+                <div class="max-w-2xl animate-in fade-in slide-in-from-left-8 duration-1000">
+                    <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">Moçambique digital em suas mãos</h1>
+                    <p class="text-xl md:text-2xl mb-10 text-gray-200 font-medium">Acesse a maior biblioteca digital gratuita de Moçambique. Literatura nacional, educação e cultura sem fronteiras.</p>
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="navigateTo('catalog')" class="bg-teal-600 hover:bg-teal-700 text-white px-10 py-5 rounded-2xl font-bold text-lg shadow-2xl shadow-teal-600/40 transition-all hover:scale-105">Explorar Catálogo</button>
+                        <button onclick="navigateTo('catalog')" class="bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 px-10 py-5 rounded-2xl font-bold text-lg transition-all">Ver Lançamentos</button>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <div class="notes-list" id="notesList">
-                <!-- Notes will be rendered here -->
+        <!-- Stats -->
+        <section class="max-w-7xl mx-auto px-6 -mt-20 relative z-20 grid grid-cols-1 md:grid-cols-3 gap-6 mb-24">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-50 flex items-center gap-6">
+                <div class="w-16 h-16 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner"><i class="fa-solid fa-graduation-cap"></i></div>
+                <div><h3 class="font-black text-2xl">Educação</h3><p class="text-gray-400 text-sm">Foco no ensino nacional</p></div>
             </div>
-        </aside>
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-50 flex items-center gap-6">
+                <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner"><i class="fa-solid fa-cloud-arrow-down"></i></div>
+                <div><h3 class="font-black text-2xl">Acesso Livre</h3><p class="text-gray-400 text-sm">Baixe e leia offline</p></div>
+            </div>
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-50 flex items-center gap-6">
+                <div class="w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner"><i class="fa-solid fa-palette"></i></div>
+                <div><h3 class="font-black text-2xl">Cultura</h3><p class="text-gray-400 text-sm">Autores Moçambicanos</p></div>
+            </div>
+        </section>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="editor-header">
-                <input type="text" class="editor-title-input" id="noteTitle" placeholder="Título da nota...">
-                <div class="editor-actions">
-                    <button class="btn btn-icon" id="pinBtn" title="Fixar nota">
-                        <i class="fas fa-thumbtack"></i>
-                    </button>
-                    <button class="btn btn-icon" id="categoryBtn" title="Categoria">
-                        <i class="fas fa-tag"></i>
-                    </button>
-                    <button class="btn btn-icon" id="exportBtn" title="Exportar">
-                        <i class="fas fa-download"></i>
-                    </button>
-                    <button class="btn btn-icon" id="fullscreenBtn" title="Tela cheia">
-                        <i class="fas fa-expand"></i>
-                    </button>
-                    <button class="btn btn-icon" id="deleteBtn" title="Excluir">
-                        <i class="fas fa-trash"></i>
-                    </button>
+        <!-- Featured -->
+        <section class="max-w-7xl mx-auto px-6 mb-32">
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <h2 class="text-4xl font-black text-gray-900 tracking-tight">Destaques Culturais</h2>
+                    <p class="text-gray-500 mt-2 font-medium">Obras essenciais selecionadas pela nossa curadoria.</p>
                 </div>
+                <button onclick="navigateTo('catalog')" class="text-teal-600 font-black flex items-center gap-2 group">Ver Tudo <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i></button>
             </div>
+            <div id="featured-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Injetado via JS -->
+            </div>
+        </section>
+    </div>
 
-            <div class="toolbar" id="toolbar">
-                <div class="toolbar-group">
-                    <select class="toolbar-select" id="formatBlock">
-                        <option value="p">Parágrafo</option>
-                        <option value="h1">Título 1</option>
-                        <option value="h2">Título 2</option>
-                        <option value="h3">Título 3</option>
-                        <option value="pre">Código</option>
-                        <option value="blockquote">Citação</option>
+    <div id="page-catalog" class="page-content hidden">
+        <div class="max-w-7xl mx-auto px-6 py-20">
+            <div class="mb-16">
+                <h1 class="text-5xl font-black text-gray-900 mb-6">Catálogo Digital</h1>
+                <div class="flex flex-col lg:flex-row gap-6">
+                    <div class="flex-grow relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="search-input" oninput="filterCatalog()" placeholder="Pesquisar por obra ou autor moçambicano..." class="w-full pl-14 pr-6 py-5 rounded-2xl bg-white border border-gray-100 shadow-sm focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 outline-none transition-all text-lg">
+                    </div>
+                    <select id="genre-filter" onchange="filterCatalog()" class="bg-white border border-gray-100 px-6 py-5 rounded-2xl font-bold outline-none focus:ring-4 focus:ring-teal-500/10">
+                        <option value="Todos">Todos os Gêneros</option>
+                        <option value="Educação">Educação</option>
+                        <option value="Romance">Romance</option>
+                        <option value="História">História</option>
+                        <option value="Tecnologia">Tecnologia</option>
                     </select>
                 </div>
-
-                <div class="toolbar-group">
-                    <button class="toolbar-btn" data-command="bold" title="Negrito (Ctrl+B)">
-                        <i class="fas fa-bold"></i>
-                    </button>
-                    <button class="toolbar-btn" data-command="italic" title="Itálico (Ctrl+I)">
-                        <i class="fas fa-italic"></i>
-                    </button>
-                    <button class="toolbar-btn" data-command="underline" title="Sublinhado (Ctrl+U)">
-                        <i class="fas fa-underline"></i>
-                    </button>
-                    <button class="toolbar-btn" data-command="strikeThrough" title="Tachado">
-                        <i class="fas fa-strikethrough"></i>
-                    </button>
-                </div>
-
-                <div class="toolbar-group">
-                    <div class="color-picker-wrapper">
-                        <div class="color-picker-btn">
-                            <i class="fas fa-palette"></i>
-                        </div>
-                        <input type="color" id="textColor" value="#6366f1" title="Cor do texto">
-                    </div>
-                    <div class="color-picker-wrapper">
-                        <div class="color-picker-btn">
-                            <i class="fas fa-fill-drip"></i>
-                        </div>
-                        <input type="color" id="bgColor" value="#fef08a" title="Cor de fundo">
-                    </div>
-                </div>
-
-                <div class="toolbar-group">
-                    <button class="toolbar-btn" data-command="justifyLeft" title="Alinhar esquerda">
-                        <i class="fas fa-align-left"></i>
-                    </button>
-                    <button class="toolbar-btn" data-command="justifyCenter" title="Centralizar">
-                        <i class="fas fa-align-center"></i>
-                    </button>
-                    <button class="toolbar-btn" data-command="justifyRight" title="Alinhar direita">
-                        <i class="fas fa-align-right"></i>
-                    </button>
-                    <button class="toolbar-btn" data-command="justifyFull" title="Justificar">
-                        <i class="fas fa-align-justify"></i>
-                    </button>
-                </div>
-
-                <div class="toolbar-group">
-                    <button class="toolbar-btn" data-command="insertUnorderedList" title="Lista">
-                        <i class="fas fa-list-ul"></i>
-                    </button>
-                    <button class="toolbar-btn" data-command="insertOrderedList" title="Lista numerada">
-                        <i class="fas fa-list-ol"></i>
-                    </button>
-                    <button class="toolbar-btn" id="checklistBtn" title="Checklist">
-                        <i class="fas fa-check-square"></i>
-                    </button>
-                </div>
-
-                <div class="toolbar-group">
-                    <button class="toolbar-btn" id="linkBtn" title="Inserir link">
-                        <i class="fas fa-link"></i>
-                    </button>
-                    <button class="toolbar-btn" id="imageBtn" title="Inserir imagem">
-                        <i class="fas fa-image"></i>
-                    </button>
-                    <button class="toolbar-btn" id="tableBtn" title="Inserir tabela">
-                        <i class="fas fa-table"></i>
-                    </button>
-                    <button class="toolbar-btn" id="hrBtn" title="Linha horizontal">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                </div>
-
-                <div class="toolbar-group">
-                    <button class="toolbar-btn" data-command="undo" title="Desfazer (Ctrl+Z)">
-                        <i class="fas fa-undo"></i>
-                    </button>
-                    <button class="toolbar-btn" data-command="redo" title="Refazer (Ctrl+Y)">
-                        <i class="fas fa-redo"></i>
-                    </button>
-                    <button class="toolbar-btn" data-command="removeFormat" title="Remover formatação">
-                        <i class="fas fa-eraser"></i>
-                    </button>
-                </div>
             </div>
-
-            <div class="editor-container">
-                <div class="editor-area">
-                    <div id="editor" contenteditable="true"></div>
-                </div>
+            <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Injetado via JS -->
             </div>
-
-            <div class="status-bar">
-                <div class="status-left">
-                    <span class="status-item" id="wordCount">
-                        <i class="fas fa-file-word"></i>
-                        <span>0 palavras</span>
-                    </span>
-                    <span class="status-item" id="charCount">
-                        <i class="fas fa-text-width"></i>
-                        <span>0 caracteres</span>
-                    </span>
-                    <span class="status-item" id="readTime">
-                        <i class="fas fa-clock"></i>
-                        <span>0 min leitura</span>
-                    </span>
-                </div>
-                <div class="status-right">
-                    <span class="status-item save-indicator saved" id="saveIndicator">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Salvo</span>
-                    </span>
-                    <span class="status-item" id="lastModified">
-                        <i class="fas fa-calendar"></i>
-                        <span>--</span>
-                    </span>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Floating Panel -->
-    <div class="floating-panel">
-        <button class="floating-btn secondary" id="scrollTopBtn" title="Ir ao topo">
-            <i class="fas fa-arrow-up"></i>
-        </button>
-        <button class="floating-btn primary" id="quickAddBtn" title="Nova nota rápida">
-            <i class="fas fa-plus"></i>
-        </button>
-    </div>
-
-    <!-- Context Menu -->
-    <div class="context-menu" id="contextMenu">
-        <div class="context-menu-item" data-action="pin">
-            <i class="fas fa-thumbtack"></i>
-            <span>Fixar nota</span>
-        </div>
-        <div class="context-menu-item" data-action="duplicate">
-            <i class="fas fa-copy"></i>
-            <span>Duplicar</span>
-        </div>
-        <div class="context-menu-divider"></div>
-        <div class="context-menu-item" data-action="export">
-            <i class="fas fa-download"></i>
-            <span>Exportar</span>
-        </div>
-        <div class="context-menu-divider"></div>
-        <div class="context-menu-item" data-action="delete" style="color: var(--danger);">
-            <i class="fas fa-trash"></i>
-            <span>Excluir</span>
         </div>
     </div>
 
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer"></div>
+    <div id="page-support" class="page-content hidden">
+        <div class="max-w-5xl mx-auto px-6 py-24 text-center">
+            <h1 class="text-5xl font-black mb-8">Canal de Apoio</h1>
+            <p class="text-xl text-gray-500 mb-16 max-w-2xl mx-auto">Precisa de ajuda ou quer sugerir uma obra? Estamos disponíveis 24/7 através dos nossos canais digitais.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <a href="https://wa.me/258858799196" class="bg-white p-12 rounded-[3rem] shadow-xl border border-gray-50 hover:border-teal-500 transition-all group">
+                    <div class="w-20 h-20 bg-green-50 text-green-600 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-8 group-hover:scale-110 transition-transform"><i class="fa-brands fa-whatsapp"></i></div>
+                    <h3 class="text-2xl font-black mb-2">WhatsApp</h3>
+                    <p class="text-gray-400 font-medium">+258 85 8799196</p>
+                </a>
+                <a href="mailto:martabitoneb@gmail.com" class="bg-white p-12 rounded-[3rem] shadow-xl border border-gray-50 hover:border-teal-500 transition-all group">
+                    <div class="w-20 h-20 bg-teal-50 text-teal-600 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-8 group-hover:scale-110 transition-transform"><i class="fa-solid fa-envelope"></i></div>
+                    <h3 class="text-2xl font-black mb-2">E-mail Oficial</h3>
+                    <p class="text-gray-400 font-medium">martabitoneb@gmail.com</p>
+                </a>
+            </div>
+        </div>
+    </div>
 
-    <!-- Category Modal -->
-    <div class="modal-overlay" id="categoryModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Selecionar Categoria</h3>
-                <button class="modal-close" onclick="closeCategoryModal()">
-                    <i class="fas fa-times"></i>
+    <div id="page-admin-login" class="page-content hidden">
+        <div class="min-h-[80vh] flex items-center justify-center px-6">
+            <div class="max-w-md w-full bg-white p-12 rounded-[3rem] shadow-2xl border border-gray-100">
+                <div class="text-center mb-10">
+                    <div class="w-20 h-20 bg-teal-600 rounded-3xl flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-xl shadow-teal-500/20"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h1 class="text-3xl font-black text-gray-900">Área Restrita</h1>
+                    <p class="text-gray-500 font-medium">Acesso para Administradores</p>
+                </div>
+                <form onsubmit="handleAdminLogin(event)" class="space-y-6">
+                    <input type="text" id="admin-user" required placeholder="Usuário" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 outline-none focus:ring-4 focus:ring-teal-500/10 text-gray-900 font-bold">
+                    <input type="password" id="admin-pass" required placeholder="Senha" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 outline-none focus:ring-4 focus:ring-teal-500/10 text-gray-900 font-bold">
+                    <button type="submit" class="w-full bg-teal-600 text-white font-black py-5 rounded-2xl shadow-xl hover:bg-teal-700 transition-all">Entrar no Sistema</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-admin-dashboard" class="page-content hidden">
+        <div class="max-w-7xl mx-auto px-6 py-16">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+                <div>
+                    <h1 class="text-4xl font-black text-gray-900">Gestão de Acervo</h1>
+                    <p class="text-gray-500 font-medium">Painel de controle da biblioteca digital.</p>
+                </div>
+                <button onclick="toggleAddBookForm()" class="bg-teal-600 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-3 shadow-xl shadow-teal-500/20">
+                    <i class="fa-solid fa-plus"></i> Publicar Nova Obra
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="category-options" id="categoryOptions">
-                    <div class="category-option" data-category="personal">
-                        <i class="fas fa-user"></i> Pessoal
-                    </div>
-                    <div class="category-option" data-category="work">
-                        <i class="fas fa-briefcase"></i> Trabalho
-                    </div>
-                    <div class="category-option" data-category="ideas">
-                        <i class="fas fa-lightbulb"></i> Ideias
-                    </div>
-                    <div class="category-option" data-category="tasks">
-                        <i class="fas fa-tasks"></i> Tarefas
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Link Modal -->
-    <div class="modal-overlay" id="linkModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Inserir Link</h3>
-                <button class="modal-close" onclick="closeLinkModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">URL</label>
-                    <input type="url" class="form-input" id="linkUrl" placeholder="https://exemplo.com">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Texto do link (opcional)</label>
-                    <input type="text" class="form-input" id="linkText" placeholder="Texto exibido">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeLinkModal()">Cancelar</button>
-                <button class="btn btn-primary" onclick="insertLink()">Inserir</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div class="modal-overlay" id="deleteModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Excluir Nota</h3>
-                <button class="modal-close" onclick="closeDeleteModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Tem certeza que deseja excluir esta nota? Esta ação não pode ser desfeita.</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancelar</button>
-                <button class="btn btn-danger" onclick="confirmDelete()">Excluir</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Export Modal -->
-    <div class="modal-overlay" id="exportModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Exportar Nota</h3>
-                <button class="modal-close" onclick="closeExportModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="category-options">
-                    <div class="category-option" onclick="exportNote('txt')">
-                        <i class="fas fa-file-alt"></i> TXT
-                    </div>
-                    <div class="category-option" onclick="exportNote('html')">
-                        <i class="fas fa-file-code"></i> HTML
-                    </div>
-                    <div class="category-option" onclick="exportNote('md')">
-                        <i class="fab fa-markdown"></i> Markdown
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // State
-        let notes = [];
-        let currentNoteId = null;
-        let currentCategory = 'all';
-        let saveTimeout = null;
-        let contextMenuNoteId = null;
-        let isDarkMode = true;
-
-        // DOM Elements
-        const editor = document.getElementById('editor');
-        const noteTitle = document.getElementById('noteTitle');
-        const notesList = document.getElementById('notesList');
-        const searchInput = document.getElementById('searchInput');
-        const saveIndicator = document.getElementById('saveIndicator');
-
-        // Initialize
-        function init() {
-            loadNotes();
-            setupEventListeners();
-            checkTheme();
-
-            if (notes.length === 0) {
-                createNewNote();
-            } else {
-                loadNote(notes[0].id);
-            }
-
-            renderNotesList();
-        }
-
-        // Theme
-        function checkTheme() {
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-                document.documentElement.classList.add('light');
-                isDarkMode = false;
-                updateThemeIcon();
-            }
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-                if (event.matches) {
-                    document.documentElement.classList.remove('light');
-                    isDarkMode = true;
-                } else {
-                    document.documentElement.classList.add('light');
-                    isDarkMode = false;
-                }
-                updateThemeIcon();
-            });
-        }
-
-        function toggleTheme() {
-            isDarkMode = !isDarkMode;
-            document.documentElement.classList.toggle('light', !isDarkMode);
-            updateThemeIcon();
-        }
-
-        function updateThemeIcon() {
-            const icon = document.querySelector('#themeToggle i');
-            icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
-        }
-
-        // Notes CRUD - Using in-memory storage only
-        function loadNotes() {
-            // In-memory only - notes start fresh each session
-            notes = [];
-        }
-
-        function saveNotes() {
-            // In-memory only - no persistence needed
-            // Just update UI to show saved state
-        }
-
-        function createNewNote() {
-            const note = {
-                id: Date.now().toString(),
-                title: '',
-                content: '',
-                category: 'personal',
-                pinned: false,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            };
-
-            notes.unshift(note);
-            currentNoteId = note.id;
-
-            noteTitle.value = '';
-            editor.innerHTML = '';
-
-            renderNotesList();
-            saveNotes();
-            updateStats();
-
-            noteTitle.focus();
-            showToast('Nova nota criada!', 'success');
-        }
-
-        function loadNote(id) {
-            const note = notes.find(n => n.id === id);
-            if (!note) return;
-
-            currentNoteId = id;
-            noteTitle.value = note.title;
-            editor.innerHTML = note.content;
-
-            updatePinButton(note.pinned);
-            updateStats();
-            updateLastModified(note.updatedAt);
-
-            renderNotesList();
-        }
-
-        function saveCurrentNote() {
-            if (!currentNoteId) return;
-
-            const note = notes.find(n => n.id === currentNoteId);
-            if (!note) return;
-
-            note.title = noteTitle.value || 'Sem título';
-            note.content = editor.innerHTML;
-            note.updatedAt = new Date().toISOString();
-
-            saveNotes();
-            renderNotesList();
-            updateLastModified(note.updatedAt);
-
-            saveIndicator.classList.remove('saving');
-            saveIndicator.classList.add('saved');
-            saveIndicator.innerHTML = '<i class="fas fa-check-circle"></i><span>Salvo</span>';
-        }
-
-        function deleteNote(id) {
-            const index = notes.findIndex(n => n.id === id);
-            if (index === -1) return;
-
-            notes.splice(index, 1);
-            saveNotes();
-
-            if (currentNoteId === id) {
-                if (notes.length > 0) {
-                    loadNote(notes[0].id);
-                } else {
-                    createNewNote();
-                }
-            }
-
-            renderNotesList();
-            showToast('Nota excluída!', 'warning');
-        }
-
-        function duplicateNote(id) {
-            const note = notes.find(n => n.id === id);
-            if (!note) return;
-
-            const newNote = {
-                ...note,
-                id: Date.now().toString(),
-                title: note.title + ' (cópia)',
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            };
-
-            notes.unshift(newNote);
-            saveNotes();
-            loadNote(newNote.id);
-            renderNotesList();
-            showToast('Nota duplicada!', 'success');
-        }
-
-        function togglePin(id) {
-            const note = notes.find(n => n.id === id);
-            if (!note) return;
-
-            note.pinned = !note.pinned;
-            saveNotes();
-
-            if (currentNoteId === id) {
-                updatePinButton(note.pinned);
-            }
-
-            renderNotesList();
-            showToast(note.pinned ? 'Nota fixada!' : 'Nota desafixada!', 'success');
-        }
-
-        function setCategory(category) {
-            const note = notes.find(n => n.id === currentNoteId);
-            if (!note) return;
-
-            note.category = category;
-            saveNotes();
-            renderNotesList();
-            closeCategoryModal();
-            showToast('Categoria atualizada!', 'success');
-        }
-
-        // Rendering
-        function renderNotesList() {
-            let filteredNotes = notes;
-
-            // Filter by category
-            if (currentCategory !== 'all') {
-                filteredNotes = filteredNotes.filter(n => n.category === currentCategory);
-            }
-
-            // Filter by search
-            const searchTerm = searchInput.value.toLowerCase();
-            if (searchTerm) {
-                filteredNotes = filteredNotes.filter(n =>
-                    n.title.toLowerCase().includes(searchTerm) ||
-                    n.content.toLowerCase().includes(searchTerm)
-                );
-            }
-
-            // Sort: pinned first, then by date
-            filteredNotes.sort((a, b) => {
-                if (a.pinned && !b.pinned) return -1;
-                if (!a.pinned && b.pinned) return 1;
-                return new Date(b.updatedAt) - new Date(a.updatedAt);
-            });
-
-            if (filteredNotes.length === 0) {
-                notesList.innerHTML = `
-                    <div class="empty-state" style="padding: 40px 20px;">
-                        <i class="fas fa-sticky-note" style="font-size: 40px;"></i>
-                        <h2 style="font-size: 16px;">Nenhuma nota encontrada</h2>
-                        <p style="font-size: 13px;">Crie uma nova nota para começar</p>
-                    </div>
-                `;
-                return;
-            }
-
-            notesList.innerHTML = filteredNotes.map(note => {
-                const preview = getTextContent(note.content).substring(0, 100);
-                const date = formatDate(note.updatedAt);
-                const categoryInfo = getCategoryInfo(note.category);
-
-                return `
-                    <div class="note-card ${note.id === currentNoteId ? 'active' : ''}"
-                         data-id="${note.id}"
-                         onclick="loadNote('${note.id}')"
-                         oncontextmenu="showContextMenu(event, '${note.id}')">
-                        <div class="note-card-header">
-                            <div class="note-card-title">${note.title || 'Sem título'}</div>
-                            ${note.pinned ? '<i class="fas fa-thumbtack note-card-pin"></i>' : ''}
+            <!-- Form Adicionar Livro -->
+            <div id="add-book-form" class="hidden bg-white p-10 rounded-[3rem] shadow-2xl border border-teal-50 mb-12 fade-in">
+                <form onsubmit="handleAddBook(event)" class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="space-y-6">
+                        <div class="border-2 border-dashed border-gray-200 rounded-[2rem] p-10 text-center relative hover:border-teal-400 transition-all">
+                            <input type="file" id="book-file" accept=".pdf,.epub" class="absolute inset-0 opacity-0 cursor-pointer z-10">
+                            <div id="file-preview-name" class="text-gray-400 font-bold"><i class="fa-solid fa-cloud-arrow-up text-3xl mb-4 block"></i> Selecionar PDF/EPUB</div>
                         </div>
-                        <div class="note-card-preview">${preview || 'Nota vazia...'}</div>
-                        <div class="note-card-footer">
-                            <span class="note-card-date">${date}</span>
-                            <span class="note-card-category">${categoryInfo.label}</span>
-                        </div>
+                        <input type="text" id="book-title" required placeholder="Título da Obra" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 text-gray-900 font-bold outline-none focus:ring-4 focus:ring-teal-500/10">
+                        <input type="text" id="book-author" required placeholder="Autor" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 text-gray-900 font-bold outline-none focus:ring-4 focus:ring-teal-500/10">
                     </div>
-                `;
-            }).join('');
-        }
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center px-1">
+                            <span class="text-sm font-bold text-gray-500">Sinopse Narrativa</span>
+                            <button type="button" onclick="aiGenerateDescription()" class="text-xs font-black text-teal-600 uppercase tracking-widest"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i> IA Gerar</button>
+                        </div>
+                        <textarea id="book-desc" required rows="6" class="w-full px-6 py-4 rounded-[2rem] bg-gray-50 border border-gray-100 text-gray-900 font-medium outline-none focus:ring-4 focus:ring-teal-500/10 resize-none" placeholder="Escreva sobre a obra..."></textarea>
+                        <select id="book-genre" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 font-bold outline-none">
+                            <option value="Educação">Educação</option>
+                            <option value="Romance">Romance</option>
+                            <option value="História">História</option>
+                            <option value="Tecnologia">Tecnologia</option>
+                        </select>
+                        <button type="submit" class="w-full bg-teal-600 text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-teal-500/30">Salvar na Biblioteca</button>
+                    </div>
+                </form>
+            </div>
 
-        function getCategoryInfo(category) {
-            const categories = {
-                personal: { label: 'Pessoal', icon: 'fa-user' },
-                work: { label: 'Trabalho', icon: 'fa-briefcase' },
-                ideas: { label: 'Ideias', icon: 'fa-lightbulb' },
-                tasks: { label: 'Tarefas', icon: 'fa-tasks' }
-            };
-            return categories[category] || categories.personal;
-        }
-
-        function getTextContent(html) {
-            const temp = document.createElement('div');
-            temp.innerHTML = html;
-            return temp.textContent || temp.innerText || '';
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const now = new Date();
-            const diff = now - date;
-
-            if (diff < 60000) return 'Agora';
-            if (diff < 3600000) return `${Math.floor(diff / 60000)} min atrás`;
-            if (diff < 86400000) return `${Math.floor(diff / 3600000)}h atrás`;
-
-            return date.toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: 'short'
-            });
-        }
-
-        // Stats
-        function updateStats() {
-            const text = getTextContent(editor.innerHTML);
-            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-            const chars = text.length;
-            const readTime = Math.ceil(words / 200);
-
-            document.querySelector('#wordCount span').textContent = `${words} palavras`;
-            document.querySelector('#charCount span').textContent = `${chars} caracteres`;
-            document.querySelector('#readTime span').textContent = `${readTime} min leitura`;
-        }
-
-        function updateLastModified(dateString) {
-            const date = new Date(dateString);
-            document.querySelector('#lastModified span').textContent =
-                date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        }
-
-        function updatePinButton(isPinned) {
-            const btn = document.getElementById('pinBtn');
-            btn.classList.toggle('active', isPinned);
-        }
-
-        // Toolbar Commands
-        function execCommand(command, value = null) {
-            document.execCommand(command, false, value);
-            editor.focus();
-            autoSave();
-        }
-
-        // Export
-        function exportNote(format) {
-            const note = notes.find(n => n.id === currentNoteId);
-            if (!note) return;
-
-            let content, filename, mimeType;
-
-            switch (format) {
-                case 'txt':
-                    content = getTextContent(note.content);
-                    filename = `${note.title || 'nota'}.txt`;
-                    mimeType = 'text/plain';
-                    break;
-                case 'html':
-                    content = `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>${note.title || 'Nota'}</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
-        h1 { color: #333; }
-    </style>
-</head>
-<body>
-    <h1>${note.title || 'Nota'}</h1>
-    ${note.content}
-</body>
-</html>`;
-                    filename = `${note.title || 'nota'}.html`;
-                    mimeType = 'text/html';
-                    break;
-                case 'md':
-                    content = `# ${note.title || 'Nota'}\n\n${htmlToMarkdown(note.content)}`;
-                    filename = `${note.title || 'nota'}.md`;
-                    mimeType = 'text/markdown';
-                    break;
-            }
-
-            const blob = new Blob([content], { type: mimeType });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            URL.revokeObjectURL(url);
-
-            closeExportModal();
-            showToast('Nota exportada!', 'success');
-        }
-
-        function htmlToMarkdown(html) {
-            return html
-                .replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n')
-                .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n')
-                .replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n')
-                .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**')
-                .replace(/<b[^>]*>(.*?)<\/b>/gi, '**$1**')
-                .replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*')
-                .replace(/<i[^>]*>(.*?)<\/i>/gi, '*$1*')
-                .replace(/<u[^>]*>(.*?)<\/u>/gi, '_$1_')
-                .replace(/<li[^>]*>(.*?)<\/li>/gi, '- $1\n')
-                .replace(/<br\s*\/?>/gi, '\n')
-                .replace(/<p[^>]*>(.*?)<\/p>/gi, '$1\n\n')
-                .replace(/<[^>]+>/g, '')
-                .trim();
-        }
-
-        // Modals
-        function openCategoryModal() {
-            document.getElementById('categoryModal').classList.add('active');
-            const note = notes.find(n => n.id === currentNoteId);
-            if (note) {
-                document.querySelectorAll('#categoryOptions .category-option').forEach(opt => {
-                    opt.classList.toggle('selected', opt.dataset.category === note.category);
-                });
-            }
-        }
-
-        function closeCategoryModal() {
-            document.getElementById('categoryModal').classList.remove('active');
-        }
-
-        function openLinkModal() {
-            document.getElementById('linkModal').classList.add('active');
-            document.getElementById('linkUrl').value = '';
-            document.getElementById('linkText').value = '';
-        }
-
-        function closeLinkModal() {
-            document.getElementById('linkModal').classList.remove('active');
-        }
-
-        function insertLink() {
-            const url = document.getElementById('linkUrl').value;
-            const text = document.getElementById('linkText').value || url;
-
-            if (url) {
-                execCommand('insertHTML', `<a href="${url}" target="_blank">${text}</a>`);
-            }
-
-            closeLinkModal();
-        }
-
-        function openDeleteModal() {
-            document.getElementById('deleteModal').classList.add('active');
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.remove('active');
-        }
-
-        function confirmDelete() {
-            if (currentNoteId) {
-                deleteNote(currentNoteId);
-            }
-            closeDeleteModal();
-        }
-
-        function openExportModal() {
-            document.getElementById('exportModal').classList.add('active');
-        }
-
-        function closeExportModal() {
-            document.getElementById('exportModal').classList.remove('active');
-        }
-
-        // Context Menu
-        function showContextMenu(e, noteId) {
-            e.preventDefault();
-            contextMenuNoteId = noteId;
-
-            const menu = document.getElementById('contextMenu');
-            menu.style.left = e.clientX + 'px';
-            menu.style.top = e.clientY + 'px';
-            menu.classList.add('active');
-
-            const note = notes.find(n => n.id === noteId);
-            const pinItem = menu.querySelector('[data-action="pin"]');
-            pinItem.innerHTML = note.pinned
-                ? '<i class="fas fa-thumbtack"></i><span>Desafixar nota</span>'
-                : '<i class="fas fa-thumbtack"></i><span>Fixar nota</span>';
-        }
-
-        function hideContextMenu() {
-            document.getElementById('contextMenu').classList.remove('active');
-        }
-
-        // Toast
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'warning' ? 'fa-exclamation-circle' : 'fa-times-circle'} toast-icon"></i>
-                <span class="toast-message">${message}</span>
-            `;
-
-            container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.style.animation = 'slideIn 0.3s ease reverse';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        // Auto Save
-        function autoSave() {
-            saveIndicator.classList.add('saving');
-            saveIndicator.classList.remove('saved');
-            saveIndicator.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i><span>Salvando...</span>';
-
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(() => {
-                saveCurrentNote();
-            }, 500);
-        }
-
-        // Insert special elements
-        function insertTable() {
-            const table = `
-                <table>
-                    <tr><th>Coluna 1</th><th>Coluna 2</th><th>Coluna 3</th></tr>
-                    <tr><td>Dados</td><td>Dados</td><td>Dados</td></tr>
-                    <tr><td>Dados</td><td>Dados</td><td>Dados</td></tr>
+            <div class="bg-white rounded-[3rem] shadow-xl overflow-hidden border border-gray-50">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50/50">
+                        <tr class="border-b border-gray-100">
+                            <th class="px-8 py-6 text-xs font-black text-gray-400 uppercase tracking-widest">Obra</th>
+                            <th class="px-8 py-6 text-xs font-black text-gray-400 uppercase tracking-widest">Formato</th>
+                            <th class="px-8 py-6 text-xs font-black text-gray-400 uppercase tracking-widest text-right">Controle</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body" class="divide-y divide-gray-50">
+                        <!-- Injetado via JS -->
+                    </tbody>
                 </table>
-            `;
-            execCommand('insertHTML', table);
-        }
+            </div>
+        </div>
+    </div>
 
-        function insertChecklist() {
-            const checklist = `
-                <ul style="list-style: none; padding-left: 0;">
-                    <li><input type="checkbox"> Item 1</li>
-                    <li><input type="checkbox"> Item 2</li>
-                    <li><input type="checkbox"> Item 3</li>
+    <!-- Rodapé -->
+    <footer class="bg-gray-900 text-gray-400 py-20 mt-20">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-16">
+            <div class="col-span-1 md:col-span-2">
+                <h2 class="text-3xl font-black text-white mb-6">Minha Biblioteca On</h2>
+                <p class="text-lg leading-relaxed max-w-sm mb-8">"Moçambique digital em suas mãos."<br>Democratizando o acesso ao conhecimento através da tecnologia.</p>
+                <div class="flex gap-6 text-2xl text-white">
+                    <a href="#" class="hover:text-teal-500 transition-colors"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="https://wa.me/258858799196" class="hover:text-teal-500 transition-colors"><i class="fa-brands fa-whatsapp"></i></a>
+                    <a href="#" class="hover:text-teal-500 transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-white font-black uppercase text-xs tracking-widest mb-8">Navegação</h3>
+                <ul class="space-y-4 font-bold">
+                    <li><a href="#" onclick="navigateTo('home')" class="hover:text-white">Início</a></li>
+                    <li><a href="#" onclick="navigateTo('catalog')" class="hover:text-white">Catálogo</a></li>
+                    <li><a href="#" onclick="navigateTo('support')" class="hover:text-white">Apoio</a></li>
                 </ul>
-            `;
-            execCommand('insertHTML', checklist);
-        }
+            </div>
+            <div>
+                <h3 class="text-white font-black uppercase text-xs tracking-widest mb-8">Contato</h3>
+                <ul class="space-y-4 font-bold">
+                    <li>Maputo, Moçambique</li>
+                    <li>martabitoneb@gmail.com</li>
+                    <li>+258 85 8799196</li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 pt-12 mt-12 border-t border-white/5 text-center text-xs font-black uppercase tracking-widest">
+            © 2024 Minha Biblioteca On. Desenvolvido para Moçambique.
+        </div>
+    </footer>
 
-        function insertHorizontalRule() {
-            execCommand('insertHTML', '<hr style="border: none; border-top: 2px solid var(--border-color); margin: 20px 0;">');
-        }
-
-        function insertImage() {
-            const url = window.prompt ? null : '';
-            showImagePrompt();
-        }
-
-        function showImagePrompt() {
-            const modal = document.createElement('div');
-            modal.className = 'modal-overlay active';
-            modal.innerHTML = `
-                <div class="modal">
-                    <div class="modal-header">
-                        <h3 class="modal-title">Inserir Imagem</h3>
-                        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
-                            <i class="fas fa-times"></i>
-                        </button>
+    <!-- Modal do Leitor -->
+    <div id="reader-modal" class="hidden fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 lg:p-10">
+        <div class="bg-[#f2efe4] w-full max-w-7xl h-full rounded-[3rem] flex flex-col overflow-hidden shadow-2xl relative">
+            
+            <!-- Barra Superior do Leitor -->
+            <div class="bg-white/95 border-b border-gray-100 px-8 py-5 flex justify-between items-center z-50">
+                <div class="flex items-center gap-5">
+                    <img id="reader-cover" src="" class="w-10 h-14 object-cover rounded shadow-md" alt="">
+                    <div>
+                        <h2 id="reader-title" class="font-black text-gray-900 leading-tight">Título do Livro</h2>
+                        <p id="reader-author" class="text-[10px] text-teal-600 font-black uppercase tracking-widest">Autor</p>
                     </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label class="form-label">URL da imagem</label>
-                            <input type="url" class="form-input" id="imageUrlInput" placeholder="https://exemplo.com/imagem.jpg">
+                </div>
+                <div class="flex bg-gray-100 p-1.5 rounded-2xl">
+                    <button id="tab-read" onclick="switchReaderTab('read')" class="px-8 py-2.5 rounded-xl text-xs font-black transition-all bg-white text-teal-600 shadow-md">Leitura</button>
+                    <button id="tab-comments" onclick="switchReaderTab('comments')" class="px-8 py-2.5 rounded-xl text-xs font-black transition-all text-gray-500">Críticas</button>
+                </div>
+                <button onclick="closeReader()" class="w-12 h-12 rounded-full hover:bg-gray-100 text-gray-400 hover:text-red-500 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+
+            <!-- Área de Conteúdo do Leitor -->
+            <div id="reader-content-area" class="flex-grow relative bg-[#e8e4d9] overflow-hidden">
+                
+                <!-- Modo PDF -->
+                <div id="reader-pdf-view" class="hidden w-full h-full p-4 lg:p-10">
+                    <iframe id="pdf-frame" src="" class="w-full h-full rounded-2xl shadow-2xl bg-white border-none" title="Leitor PDF"></iframe>
+                </div>
+
+                <!-- Modo EPUB -->
+                <div id="reader-epub-view" class="hidden w-full h-full flex flex-col items-center justify-center text-center p-12">
+                    <div class="w-32 h-32 bg-teal-50 text-teal-600 rounded-[2.5rem] flex items-center justify-center text-5xl mb-10"><i class="fa-solid fa-file-invoice"></i></div>
+                    <h3 class="text-4xl font-black text-gray-900 mb-4">Formato EPUB Digital</h3>
+                    <p class="text-xl text-gray-500 mb-12 max-w-lg">Este ficheiro é otimizado para Kindle e E-readers. Descarregue para a sua biblioteca pessoal.</p>
+                    <a id="epub-download-link" href="#" download class="bg-teal-600 text-white px-12 py-5 rounded-2xl font-black text-lg shadow-2xl shadow-teal-500/30 flex items-center gap-4 active:scale-95"><i class="fa-solid fa-download"></i> Baixar Agora</a>
+                </div>
+
+                <!-- Modo Livro (Texto) -->
+                <div id="reader-book-view" class="hidden w-full h-full flex flex-col lg:flex-row items-center justify-center p-4 lg:p-12">
+                    <div class="book-container relative w-full max-w-6xl h-full flex flex-col lg:flex-row shadow-2xl rounded-3xl overflow-hidden animate-in zoom-in-95 duration-700">
+                        <div class="absolute left-1/2 top-0 bottom-0 w-20 -ml-10 book-spine-shadow z-10 pointer-events-none hidden lg:block"></div>
+                        <!-- Páginas -->
+                        <div id="book-page-left" class="flex-1 bg-[#fdfcf8] p-10 lg:p-20 flex flex-col border-r border-gray-100 page-texture relative overflow-y-auto custom-scrollbar">
+                            <div class="mb-12 flex justify-between items-center opacity-30 font-serif italic text-[10px] uppercase">
+                                <span id="page-left-book-title">Título</span>
+                                <span id="page-left-num">1</span>
+                            </div>
+                            <div class="font-serif prose max-w-none text-xl lg:text-2xl leading-relaxed text-gray-800" id="page-left-content"></div>
+                        </div>
+                        <div id="book-page-right" class="hidden lg:flex flex-1 bg-[#fdfcf8] p-20 flex flex-col page-texture relative overflow-y-auto custom-scrollbar">
+                            <div class="mb-12 flex justify-between items-center opacity-30 font-serif italic text-[10px] uppercase">
+                                <span id="page-right-num">2</span>
+                                <span id="page-right-book-author">Autor</span>
+                            </div>
+                            <div class="font-serif prose max-w-none text-2xl leading-relaxed text-gray-800" id="page-right-content"></div>
+                        </div>
+                        <!-- Controles -->
+                        <div class="absolute bottom-10 left-0 right-0 flex justify-center items-center gap-10 z-20 pointer-events-none">
+                            <button onclick="prevPage()" id="btn-prev" class="w-16 h-16 rounded-full bg-white shadow-2xl flex items-center justify-center text-teal-600 hover:scale-110 active:scale-95 transition-all pointer-events-auto"><i class="fa-solid fa-chevron-left text-xl"></i></button>
+                            <div id="page-indicator" class="bg-black/90 text-white px-8 py-2.5 rounded-full text-[11px] font-black tracking-[0.2em] uppercase shadow-2xl">Pág. 1</div>
+                            <button onclick="nextPage()" id="btn-next" class="w-16 h-16 rounded-full bg-white shadow-2xl flex items-center justify-center text-teal-600 hover:scale-110 active:scale-95 transition-all pointer-events-auto"><i class="fa-solid fa-chevron-right text-xl"></i></button>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
-                        <button class="btn btn-primary" onclick="doInsertImage()">Inserir</button>
+                </div>
+
+                <!-- Secção de Comentários -->
+                <div id="reader-comments-view" class="hidden w-full h-full bg-white overflow-y-auto">
+                    <div class="max-w-4xl mx-auto py-20 px-8">
+                        <h2 class="text-4xl font-black mb-12 flex items-center gap-4"><i class="fa-solid fa-comments text-teal-600"></i> Críticas e Notas</h2>
+                        <div id="comments-list" class="space-y-6 mb-16">
+                            <!-- Injetado via JS -->
+                        </div>
+                        <div class="bg-teal-600 p-12 rounded-[3rem] shadow-2xl text-white">
+                            <h3 class="text-2xl font-black mb-8">Deixe sua avaliação</h3>
+                            <form onsubmit="handlePostComment(event)" class="space-y-6">
+                                <input type="text" id="comment-user" required placeholder="Seu nome" class="w-full px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-white/50 outline-none focus:bg-white focus:text-gray-900 transition-all font-bold">
+                                <textarea id="comment-text" required rows="4" placeholder="O que achou desta obra?" class="w-full px-6 py-4 rounded-3xl bg-white/10 border border-white/20 text-white placeholder-white/50 outline-none focus:bg-white focus:text-gray-900 transition-all font-medium resize-none"></textarea>
+                                <button type="submit" class="w-full bg-white text-teal-600 font-black py-5 rounded-2xl shadow-xl hover:bg-teal-50 transition-all active:scale-95">Publicar Comentário</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de Funcionalidade -->
+    <script type="module">
+        import { GoogleGenAI } from "@google/genai";
+
+        // --- Estado Global ---
+        const INITIAL_BOOKS = [
+            { id: '1', title: 'Educação em Moçambique', author: 'Alberto Samora', description: 'Uma análise profunda sobre o sistema educativo moçambicano desde a independência. Este livro explora os marcos históricos e as políticas públicas que moldaram a nossa educação.', genre: 'Educação', coverUrl: 'https://picsum.photos/seed/edu1/400/600', isFeatured: true, dateAdded: '2023-10-01' },
+            { id: '2', title: 'A Última Noite de Quelimane', author: 'Maria Mabote', description: 'Um romance épico passado nas margens do Rio Bons Sinais. Uma história de amor e resistência durante os anos de transformação social em Moçambique.', genre: 'Romance', coverUrl: 'https://picsum.photos/seed/rom1/400/600', isFeatured: true, dateAdded: '2023-11-15' },
+            { id: '3', title: 'Império de Monomotapa', author: 'João das Neves', description: 'Exploração histórica do antigo Império de Monomotapa e sua influência na África Austral. Um guia completo para estudantes de história.', genre: 'História', coverUrl: 'https://picsum.photos/seed/his1/400/600', isFeatured: false, dateAdded: '2024-01-20' },
+            { id: '4', title: 'Guia Tech Moçambique', author: 'Paulo Silva', description: 'Como utilizar ferramentas digitais no contexto moçambicano para educação e produtividade.', genre: 'Tecnologia', coverUrl: 'https://picsum.photos/seed/tech1/400/600', isFeatured: true, dateAdded: '2024-03-05' }
+        ];
+
+        let state = {
+            books: JSON.parse(localStorage.getItem('mbo_books')) || INITIAL_BOOKS,
+            comments: JSON.parse(localStorage.getItem('mbo_comments')) || [],
+            currentUser: JSON.parse(localStorage.getItem('mbo_user')) || null,
+            activeReader: null,
+            readerPage: 0,
+            searchQuery: '',
+            genreFilter: 'Todos'
+        };
+
+        // --- Navegação ---
+        window.navigateTo = (page) => {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`page-${page}`).classList.remove('hidden');
+            window.scrollTo(0, 0);
+            if(page === 'catalog') renderCatalog();
+            if(page === 'home') renderHome();
+            if(page === 'admin-dashboard') renderAdmin();
+        };
+
+        window.toggleMobileMenu = () => {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        };
+
+        // --- Renderização ---
+        function renderNav() {
+            const area = document.getElementById('admin-nav-area');
+            const mobileArea = document.getElementById('admin-nav-mobile');
+            
+            if (state.currentUser?.role === 'admin') {
+                const html = `
+                    <div class="flex items-center gap-4">
+                        <button onclick="navigateTo('admin-dashboard')" class="bg-teal-600 text-white px-5 py-2.5 rounded-xl text-xs font-black shadow-lg">Painel Admin</button>
+                        <button onclick="logout()" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"><i class="fa-solid fa-right-from-bracket"></i></button>
+                    </div>`;
+                area.innerHTML = html;
+                mobileArea.innerHTML = `
+                    <button onclick="navigateTo('admin-dashboard'); toggleMobileMenu()" class="text-2xl font-bold text-teal-600 mb-6 block">Painel Admin</button>
+                    <button onclick="logout(); toggleMobileMenu()" class="text-xl font-bold text-red-500">Sair</button>`;
+            } else {
+                area.innerHTML = `
+                    <button onclick="navigateTo('admin-login')" class="text-gray-400 hover:text-teal-600 transition-all flex items-center gap-2 font-bold text-xs border border-gray-100 px-4 py-2 rounded-xl">
+                        <i class="fa-solid fa-lock text-[10px]"></i> Gestão
+                    </button>`;
+                mobileArea.innerHTML = `<button onclick="navigateTo('admin-login'); toggleMobileMenu()" class="text-xl font-bold text-gray-400">Login Admin</button>`;
+            }
+        }
+
+        function createBookCard(book) {
+            return `
+                <div class="group bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
+                    <div class="relative aspect-[2/3] overflow-hidden">
+                        <img src="${book.coverUrl}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                            <button onclick="openReader('${book.id}')" class="w-14 h-14 bg-white text-teal-600 rounded-full flex items-center justify-center shadow-2xl hover:bg-teal-50"><i class="fa-solid fa-book-open text-xl"></i></button>
+                        </div>
+                        <div class="absolute top-4 left-4">
+                            <span class="bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black uppercase text-teal-700 tracking-widest shadow-sm">${book.genre}</span>
+                        </div>
+                    </div>
+                    <div class="p-6 cursor-pointer" onclick="openReader('${book.id}')">
+                        <h3 class="font-black text-gray-900 text-lg line-clamp-2 leading-tight group-hover:text-teal-600 transition-colors">${book.title}</h3>
+                        <p class="text-gray-400 text-xs font-bold mt-2 uppercase tracking-widest">${book.author}</p>
                     </div>
                 </div>
             `;
-            document.body.appendChild(modal);
         }
 
-        function doInsertImage() {
-            const url = document.getElementById('imageUrlInput').value;
-            if (url) {
-                execCommand('insertHTML', `<img src="${url}" alt="Imagem">`);
+        function renderHome() {
+            const grid = document.getElementById('featured-grid');
+            const featured = state.books.filter(b => b.isFeatured).slice(0, 4);
+            grid.innerHTML = featured.map(createBookCard).join('');
+        }
+
+        function renderCatalog() {
+            const grid = document.getElementById('catalog-grid');
+            const filtered = state.books.filter(book => {
+                const query = document.getElementById('search-input')?.value.toLowerCase() || '';
+                const genre = document.getElementById('genre-filter')?.value || 'Todos';
+                const matchesSearch = book.title.toLowerCase().includes(query) || book.author.toLowerCase().includes(query);
+                const matchesGenre = genre === 'Todos' || book.genre === genre;
+                return matchesSearch && matchesGenre;
+            });
+            grid.innerHTML = filtered.length ? filtered.map(createBookCard).join('') : `<div class="col-span-full py-20 text-center text-gray-400 font-bold">Nenhuma obra encontrada.</div>`;
+        }
+
+        window.filterCatalog = renderCatalog;
+
+        // --- Admin ---
+        window.handleAdminLogin = (e) => {
+            e.preventDefault();
+            const user = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
+            if(user === 'admin' && pass === 'moz_digital_2024') {
+                state.currentUser = { role: 'admin' };
+                localStorage.setItem('mbo_user', JSON.stringify(state.currentUser));
+                renderNav();
+                navigateTo('admin-dashboard');
+            } else {
+                alert('Credenciais Incorretas.');
             }
-            document.querySelector('.modal-overlay').remove();
-        }
+        };
 
-        // Fullscreen
-        function toggleFullscreen() {
-            document.getElementById('appContainer').classList.toggle('fullscreen');
-            const btn = document.getElementById('fullscreenBtn');
-            const isFullscreen = document.getElementById('appContainer').classList.contains('fullscreen');
-            btn.innerHTML = `<i class="fas fa-${isFullscreen ? 'compress' : 'expand'}"></i>`;
-        }
+        window.logout = () => {
+            state.currentUser = null;
+            localStorage.removeItem('mbo_user');
+            renderNav();
+            navigateTo('home');
+        };
 
-        // Event Listeners
-        function setupEventListeners() {
-            // New note buttons
-            document.getElementById('newNoteBtn').addEventListener('click', createNewNote);
-            document.getElementById('quickAddBtn').addEventListener('click', createNewNote);
+        window.toggleAddBookForm = () => {
+            document.getElementById('add-book-form').classList.toggle('hidden');
+        };
 
-            // Theme toggle
-            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-
-            // Editor events
-            editor.addEventListener('input', () => {
-                autoSave();
-                updateStats();
-            });
-
-            noteTitle.addEventListener('input', autoSave);
-
-            // Search
-            searchInput.addEventListener('input', renderNotesList);
-
-            // Category filter
-            document.getElementById('categoryList').addEventListener('click', (e) => {
-                const tag = e.target.closest('.category-tag');
-                if (tag) {
-                    document.querySelectorAll('.category-tag').forEach(t => t.classList.remove('active'));
-                    tag.classList.add('active');
-                    currentCategory = tag.dataset.category;
-                    renderNotesList();
-                }
-            });
-
-            // Toolbar buttons
-            document.querySelectorAll('.toolbar-btn[data-command]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    execCommand(btn.dataset.command);
+        window.handleAddBook = async (e) => {
+            e.preventDefault();
+            const file = document.getElementById('book-file').files[0];
+            let fileUrl = "";
+            if(file) {
+                fileUrl = await new Promise(r => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => r(reader.result);
+                    reader.readAsDataURL(file);
                 });
-            });
+            }
 
-            // Format block
-            document.getElementById('formatBlock').addEventListener('change', (e) => {
-                execCommand('formatBlock', e.target.value);
-            });
+            const newBook = {
+                id: Date.now().toString(),
+                title: document.getElementById('book-title').value,
+                author: document.getElementById('book-author').value,
+                description: document.getElementById('book-desc').value,
+                genre: document.getElementById('book-genre').value,
+                coverUrl: `https://picsum.photos/seed/${Math.random()}/400/600`,
+                fileUrl: fileUrl,
+                isFeatured: true,
+                dateAdded: new Date().toISOString()
+            };
 
-            // Color pickers
-            document.getElementById('textColor').addEventListener('input', (e) => {
-                execCommand('foreColor', e.target.value);
-            });
+            state.books.unshift(newBook);
+            localStorage.setItem('mbo_books', JSON.stringify(state.books));
+            renderAdmin();
+            toggleAddBookForm();
+            e.target.reset();
+            alert('Obra publicada com sucesso!');
+        };
 
-            document.getElementById('bgColor').addEventListener('input', (e) => {
-                execCommand('hiliteColor', e.target.value);
-            });
+        window.deleteBook = (id) => {
+            if(confirm('Eliminar esta obra?')) {
+                state.books = state.books.filter(b => b.id !== id);
+                localStorage.setItem('mbo_books', JSON.stringify(state.books));
+                renderAdmin();
+            }
+        };
 
-            // Special buttons
-            document.getElementById('linkBtn').addEventListener('click', openLinkModal);
-            document.getElementById('imageBtn').addEventListener('click', insertImage);
-            document.getElementById('tableBtn').addEventListener('click', insertTable);
-            document.getElementById('checklistBtn').addEventListener('click', insertChecklist);
-            document.getElementById('hrBtn').addEventListener('click', insertHorizontalRule);
-
-            // Action buttons
-            document.getElementById('pinBtn').addEventListener('click', () => {
-                if (currentNoteId) togglePin(currentNoteId);
-            });
-            document.getElementById('categoryBtn').addEventListener('click', openCategoryModal);
-            document.getElementById('exportBtn').addEventListener('click', openExportModal);
-            document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
-            document.getElementById('deleteBtn').addEventListener('click', openDeleteModal);
-
-            // Category selection
-            document.getElementById('categoryOptions').addEventListener('click', (e) => {
-                const option = e.target.closest('.category-option');
-                if (option) {
-                    setCategory(option.dataset.category);
-                }
-            });
-
-            // Context menu
-            document.addEventListener('click', hideContextMenu);
-            document.getElementById('contextMenu').addEventListener('click', (e) => {
-                const item = e.target.closest('.context-menu-item');
-                if (item && contextMenuNoteId) {
-                    const action = item.dataset.action;
-                    switch (action) {
-                        case 'pin':
-                            togglePin(contextMenuNoteId);
-                            break;
-                        case 'duplicate':
-                            duplicateNote(contextMenuNoteId);
-                            break;
-                        case 'export':
-                            loadNote(contextMenuNoteId);
-                            openExportModal();
-                            break;
-                        case 'delete':
-                            currentNoteId = contextMenuNoteId;
-                            openDeleteModal();
-                            break;
-                    }
-                    hideContextMenu();
-                }
-            });
-
-            // Mobile menu
-            document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-                document.getElementById('sidebar').classList.toggle('active');
-            });
-
-            // Scroll to top
-            document.getElementById('scrollTopBtn').addEventListener('click', () => {
-                document.querySelector('.editor-area').scrollTo({ top: 0, behavior: 'smooth' });
-            });
-
-            // Keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                if (e.ctrlKey || e.metaKey) {
-                    switch (e.key.toLowerCase()) {
-                        case 's':
-                            e.preventDefault();
-                            saveCurrentNote();
-                            showToast('Nota salva!', 'success');
-                            break;
-                        case 'n':
-                            e.preventDefault();
-                            createNewNote();
-                            break;
-                    }
-                }
-
-                // Escape to close modals
-                if (e.key === 'Escape') {
-                    document.querySelectorAll('.modal-overlay.active').forEach(modal => {
-                        modal.classList.remove('active');
-                    });
-                    hideContextMenu();
-                }
-            });
-
-            // Close sidebar on mobile when clicking outside
-            document.addEventListener('click', (e) => {
-                const sidebar = document.getElementById('sidebar');
-                const menuBtn = document.getElementById('mobileMenuBtn');
-                if (sidebar.classList.contains('active') &&
-                    !sidebar.contains(e.target) &&
-                    !menuBtn.contains(e.target)) {
-                    sidebar.classList.remove('active');
-                }
-            });
+        function renderAdmin() {
+            const tbody = document.getElementById('admin-table-body');
+            tbody.innerHTML = state.books.map(book => `
+                <tr class="hover:bg-gray-50/50 transition-colors">
+                    <td class="px-8 py-6">
+                        <div class="flex items-center gap-4">
+                            <img src="${book.coverUrl}" class="w-10 h-14 object-cover rounded shadow-md">
+                            <div>
+                                <div class="font-bold text-gray-900">${book.title}</div>
+                                <div class="text-xs text-gray-400 font-bold uppercase tracking-widest">${book.author}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-8 py-6">
+                        <span class="bg-gray-100 text-gray-400 px-3 py-1 rounded-full text-[10px] font-black uppercase">${book.fileUrl ? (book.fileUrl.includes('pdf') ? 'PDF' : 'EPUB') : 'TEXTO'}</span>
+                    </td>
+                    <td class="px-8 py-6 text-right">
+                        <button onclick="deleteBook('${book.id}')" class="text-red-400 hover:text-red-600 transition-colors p-3"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
-        // Initialize app
-        init();
+        // --- Leitor ---
+        window.openReader = (id) => {
+            const book = state.books.find(b => b.id === id);
+            state.activeReader = book;
+            state.readerPage = 0;
+            
+            document.getElementById('reader-modal').classList.remove('hidden');
+            document.getElementById('reader-title').innerText = book.title;
+            document.getElementById('reader-author').innerText = book.author;
+            document.getElementById('reader-cover').src = book.coverUrl;
+            
+            switchReaderTab('read');
+            renderReaderContent();
+            renderComments();
+        };
+
+        window.closeReader = () => {
+            document.getElementById('reader-modal').classList.add('hidden');
+            state.activeReader = null;
+        };
+
+        window.switchReaderTab = (tab) => {
+            document.getElementById('reader-content-area').querySelectorAll(':scope > div').forEach(d => d.classList.add('hidden'));
+            document.getElementById('tab-read').classList.remove('bg-white', 'text-teal-600', 'shadow-md');
+            document.getElementById('tab-comments').classList.remove('bg-white', 'text-teal-600', 'shadow-md');
+            
+            if(tab === 'read') {
+                document.getElementById('tab-read').classList.add('bg-white', 'text-teal-600', 'shadow-md');
+                renderReaderContent();
+            } else {
+                document.getElementById('tab-comments').classList.add('bg-white', 'text-teal-600', 'shadow-md');
+                document.getElementById('reader-comments-view').classList.remove('hidden');
+            }
+        };
+
+        function renderReaderContent() {
+            const book = state.activeReader;
+            document.getElementById('reader-pdf-view').classList.add('hidden');
+            document.getElementById('reader-epub-view').classList.add('hidden');
+            document.getElementById('reader-book-view').classList.add('hidden');
+
+            const isPDF = book.fileUrl?.includes('pdf') || book.fileUrl?.startsWith('data:application/pdf');
+            const isEPUB = book.fileUrl?.includes('epub');
+
+            if (isPDF) {
+                document.getElementById('reader-pdf-view').classList.remove('hidden');
+                document.getElementById('pdf-frame').src = book.fileUrl;
+            } else if (isEPUB) {
+                document.getElementById('reader-epub-view').classList.remove('hidden');
+                document.getElementById('epub-download-link').href = book.fileUrl;
+            } else {
+                document.getElementById('reader-book-view').classList.remove('hidden');
+                updateBookPages();
+            }
+        }
+
+        const getBookPages = () => {
+            const desc = state.activeReader.description || "Digitalização em progresso...";
+            const paragraphs = desc.split('\n').filter(p => p.trim() !== "");
+            return ["Prólogo: " + state.activeReader.title, ...paragraphs, "Fim da visualização gratuita."];
+        };
+
+        window.updateBookPages = () => {
+            const pages = getBookPages();
+            const isMobile = window.innerWidth < 1024;
+            const idx = state.readerPage;
+            
+            document.getElementById('page-left-book-title').innerText = state.activeReader.title;
+            document.getElementById('page-left-num').innerText = isMobile ? idx + 1 : idx * 2 + 1;
+            document.getElementById('page-left-content').innerText = isMobile ? pages[idx] : pages[idx * 2];
+            
+            if (!isMobile) {
+                const rightIdx = idx * 2 + 1;
+                document.getElementById('page-right-num').innerText = rightIdx + 1;
+                document.getElementById('page-right-book-author').innerText = state.activeReader.author;
+                document.getElementById('page-right-content').innerText = pages[rightIdx] || "";
+            }
+
+            document.getElementById('page-indicator').innerText = isMobile ? `Pág. ${idx + 1}` : `Folha ${idx + 1}`;
+        };
+
+        window.nextPage = () => {
+            const pages = getBookPages();
+            const isMobile = window.innerWidth < 1024;
+            const max = isMobile ? pages.length - 1 : Math.ceil(pages.length / 2) - 1;
+            if(state.readerPage < max) {
+                state.readerPage++;
+                updateBookPages();
+            }
+        };
+
+        window.prevPage = () => {
+            if(state.readerPage > 0) {
+                state.readerPage--;
+                updateBookPages();
+            }
+        };
+
+        // --- Comentários ---
+        function renderComments() {
+            const list = document.getElementById('comments-list');
+            const bookComments = state.comments.filter(c => c.bookId === state.activeReader.id);
+            list.innerHTML = bookComments.length ? bookComments.map(c => `
+                <div class="bg-gray-50 p-8 rounded-[2rem] border border-gray-100">
+                    <div class="flex justify-between mb-4">
+                        <span class="font-black text-gray-900">${c.userName}</span>
+                        <span class="text-[10px] text-gray-400 font-black uppercase tracking-widest">${c.date}</span>
+                    </div>
+                    <p class="text-gray-600 font-medium leading-relaxed">${c.text}</p>
+                </div>
+            `).join('') : `<div class="text-center py-10 text-gray-400">Nenhum comentário ainda.</div>`;
+        }
+
+        window.handlePostComment = (e) => {
+            e.preventDefault();
+            const newC = {
+                id: Date.now().toString(),
+                bookId: state.activeReader.id,
+                userName: document.getElementById('comment-user').value,
+                text: document.getElementById('comment-text').value,
+                date: new Date().toLocaleDateString('pt-MZ')
+            };
+            state.comments.push(newC);
+            localStorage.setItem('mbo_comments', JSON.stringify(state.comments));
+            renderComments();
+            e.target.reset();
+        };
+
+        // --- IA Gemini ---
+        window.aiGenerateDescription = async () => {
+            const title = document.getElementById('book-title').value;
+            const author = document.getElementById('book-author').value;
+            if(!title) return alert('Introduza o título primeiro.');
+            
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> A criar...';
+            
+            try {
+                const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+                const response = await ai.models.generateContent({
+                    model: 'gemini-3-flash-preview',
+                    contents: `Escreva uma sinopse literária envolvente para um livro moçambicano chamado "${title}" do autor "${author}". Use 3 parágrafos.`
+                });
+                document.getElementById('book-desc').value = response.text;
+            } catch (err) {
+                console.error(err);
+                alert('Erro na conexão com IA.');
+            } finally {
+                btn.innerHTML = originalText;
+            }
+        };
+
+        // --- Inicialização ---
+        renderNav();
+        renderHome();
+        
+        // Listener de Resize para o Leitor
+        window.addEventListener('resize', () => {
+            if(state.activeReader) updateBookPages();
+        });
+
     </script>
 </body>
 </html>
-

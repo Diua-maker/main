@@ -5,732 +5,860 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minha Biblioteca On - Moçambique Digital</title>
     
-    <!-- Scripts & Estilos Externos -->
+    <!-- Tailwind CSS para Estilização -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome para Ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Bibliotecas de Terceiros -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        :root {
-            --teal-600: #0d9488;
-            --teal-700: #0f766e;
+        :root { --teal: #0d9488; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; 
+            color: #1a1a1a; 
+            margin: 0;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-h: 100vh;
         }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-            scroll-behavior: smooth;
+
+        /* Animações Modernas */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .font-serif { font-family: 'Lora', serif; }
+        .animate-fade-in { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-        /* Animações */
-        .fade-in { animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Estilo do Livro */
-        .book-container {
-            perspective: 1500px;
+        /* Botões Estilizados */
+        .btn-primary { 
+            @apply bg-teal-600 text-white font-black py-3 px-8 rounded-xl transition-all duration-300 shadow-lg active:scale-95 flex items-center justify-center gap-2 uppercase text-[10px] tracking-widest hover:bg-teal-700 hover:-translate-y-0.5; 
         }
-        .book-spine-shadow {
-            background: linear-gradient(to right, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.02) 40%, rgba(0,0,0,0.02) 60%, rgba(0,0,0,0.1) 100%);
-        }
-        .page-texture {
-            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+        
+        /* Inputs com Contraste Corrigido */
+        .input-field { 
+            @apply w-full px-6 py-4 rounded-xl border-2 border-gray-300 bg-white text-black font-bold outline-none focus:border-teal-600 focus:ring-4 focus:ring-teal-500/10 transition-all placeholder:text-gray-400; 
         }
 
-        /* Classes de utilidade */
-        .btn-teal { @apply bg-teal-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-teal-700 transition-all active:scale-95 shadow-lg shadow-teal-600/20; }
-        input, textarea, select { color: #111827 !important; } /* Fix para visibilidade do texto */
+        /* Menu Mobile */
+        .mobile-menu-overlay {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.95)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Leitor de EPUB */
+        #epub-viewer { width: 100%; height: 100%; background: white; }
+        .epub-container { position: relative; width: 100%; height: 100%; overflow: hidden; }
+
+        /* Esconder scrollbars */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Loader */
+        #main-loader {
+            position: fixed; inset: 0; background: white; z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .pulse { animation: pulseAnim 2s infinite; }
+        @keyframes pulseAnim { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.9); opacity: 0.7; } }
     </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.91.0",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
 </head>
 <body>
 
-    <!-- Navegação -->
-    <nav class="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20 items-center">
-                <a href="#" onclick="navigateTo('home')" class="flex items-center gap-3 group">
-                    <div class="w-12 h-12 bg-teal-600 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg group-hover:rotate-6 transition-transform">M</div>
-                    <div class="hidden sm:block">
-                        <span class="block font-black text-xl leading-none text-gray-900">Minha Biblioteca On</span>
-                        <span class="text-[10px] uppercase tracking-[0.2em] text-teal-600 font-bold">Moçambique Digital</span>
-                    </div>
-                </a>
+    <!-- Carregador Inicial -->
+    <div id="main-loader">
+        <div class="flex flex-col items-center">
+            <div class="w-16 h-16 bg-teal-600 rounded-2xl pulse shadow-2xl flex items-center justify-center text-white text-3xl font-black">M</div>
+            <p class="mt-6 text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Minha Biblioteca On</p>
+        </div>
+    </div>
 
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="#" onclick="navigateTo('home')" class="text-sm font-bold text-gray-600 hover:text-teal-600 transition-colors">Início</a>
-                    <a href="#" onclick="navigateTo('catalog')" class="text-sm font-bold text-gray-600 hover:text-teal-600 transition-colors">Catálogo</a>
-                    <a href="#" onclick="navigateTo('support')" class="text-sm font-bold text-gray-600 hover:text-teal-600 transition-colors">Apoio</a>
-                    <div id="admin-nav-area">
-                        <!-- Renderizado via JS -->
-                    </div>
+    <!-- Navegação Superior -->
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-[100] shadow-sm h-20">
+        <div class="max-w-7xl mx-auto px-6 h-full flex justify-between items-center">
+            <a href="javascript:void(0)" onclick="navigateTo('home')" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 bg-teal-600 rounded-lg flex items-center justify-center text-white text-xl font-black shadow-lg">M</div>
+                <div class="hidden sm:block leading-none">
+                    <h1 class="text-lg font-black text-gray-900 uppercase tracking-tight">Minha Biblioteca On</h1>
+                    <p class="text-[9px] text-teal-600 font-bold uppercase tracking-[0.2em]">Moçambique Digital</p>
                 </div>
+            </a>
 
-                <button class="md:hidden text-gray-500 text-2xl" onclick="toggleMobileMenu()">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
+            <div class="hidden md:flex items-center gap-8">
+                <div class="flex gap-8">
+                    <a href="javascript:void(0)" onclick="navigateTo('home')" class="text-sm font-black text-gray-500 hover:text-teal-600">Início</a>
+                    <a href="javascript:void(0)" onclick="navigateTo('catalog')" class="text-sm font-black text-gray-500 hover:text-teal-600">Catálogo</a>
+                    <a href="javascript:void(0)" onclick="navigateTo('support')" class="text-sm font-black text-gray-500 hover:text-teal-600">Suporte</a>
+                </div>
+                <div class="w-px h-6 bg-gray-200"></div>
+                <div id="nav-auth-area" class="flex items-center gap-6">
+                    <!-- Gerado por JS -->
+                </div>
+                <a href="javascript:void(0)" onclick="navigateTo('admin')" class="bg-gray-900 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-teal-600 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i> Gestão
+                </a>
             </div>
+
+            <button onclick="toggleMobileMenu(true)" class="md:hidden p-3 text-gray-900">
+                <i class="fa-solid fa-bars text-2xl"></i>
+            </button>
         </div>
     </nav>
 
-    <!-- Menu Mobile -->
-    <div id="mobile-menu" class="hidden fixed inset-0 z-[60] bg-white p-8">
-        <div class="flex justify-between mb-12">
-            <span class="font-black text-xl">Menu</span>
-            <button onclick="toggleMobileMenu()" class="text-3xl text-gray-400">&times;</button>
-        </div>
-        <div class="flex flex-col gap-8">
-            <a href="#" onclick="navigateTo('home'); toggleMobileMenu()" class="text-2xl font-bold">Início</a>
-            <a href="#" onclick="navigateTo('catalog'); toggleMobileMenu()" class="text-2xl font-bold">Catálogo</a>
-            <a href="#" onclick="navigateTo('support'); toggleMobileMenu()" class="text-2xl font-bold">Apoio</a>
-            <div id="admin-nav-mobile" class="pt-8 border-t border-gray-100"></div>
-        </div>
-    </div>
-
-    <!-- Áreas de Conteúdo (SPA) -->
-    <div id="page-home" class="page-content">
-        <!-- Hero -->
-        <section class="relative h-[650px] flex items-center text-white overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover scale-105" alt="">
-            <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
-            <div class="relative z-10 max-w-7xl mx-auto px-6 w-full">
-                <div class="max-w-2xl animate-in fade-in slide-in-from-left-8 duration-1000">
-                    <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">Moçambique digital em suas mãos</h1>
-                    <p class="text-xl md:text-2xl mb-10 text-gray-200 font-medium">Acesse a maior biblioteca digital gratuita de Moçambique. Literatura nacional, educação e cultura sem fronteiras.</p>
-                    <div class="flex flex-wrap gap-4">
-                        <button onclick="navigateTo('catalog')" class="bg-teal-600 hover:bg-teal-700 text-white px-10 py-5 rounded-2xl font-bold text-lg shadow-2xl shadow-teal-600/40 transition-all hover:scale-105">Explorar Catálogo</button>
-                        <button onclick="navigateTo('catalog')" class="bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 px-10 py-5 rounded-2xl font-bold text-lg transition-all">Ver Lançamentos</button>
-                    </div>
+    <!-- Menu Mobile Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 z-[105] mobile-menu-overlay transition-all duration-500 translate-x-full opacity-0 pointer-events-none">
+        <div class="relative flex flex-col h-full px-10 pt-32 gap-8">
+            <button onclick="toggleMobileMenu(false)" class="absolute top-6 right-6 text-white text-4xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex flex-col gap-8">
+                <a href="javascript:void(0)" onclick="navigateTo('home'); toggleMobileMenu(false)" class="text-5xl font-black text-white hover:text-teal-400 transition-colors">1. Início</a>
+                <a href="javascript:void(0)" onclick="navigateTo('catalog'); toggleMobileMenu(false)" class="text-5xl font-black text-white hover:text-teal-400 transition-colors">2. Catálogo</a>
+                <a href="javascript:void(0)" onclick="navigateTo('support'); toggleMobileMenu(false)" class="text-5xl font-black text-white hover:text-teal-400 transition-colors">3. Suporte</a>
+                <div id="mobile-auth-area" class="flex flex-col gap-8">
+                    <!-- Gerado por JS -->
                 </div>
             </div>
-        </section>
-
-        <!-- Stats -->
-        <section class="max-w-7xl mx-auto px-6 -mt-20 relative z-20 grid grid-cols-1 md:grid-cols-3 gap-6 mb-24">
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-50 flex items-center gap-6">
-                <div class="w-16 h-16 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner"><i class="fa-solid fa-graduation-cap"></i></div>
-                <div><h3 class="font-black text-2xl">Educação</h3><p class="text-gray-400 text-sm">Foco no ensino nacional</p></div>
-            </div>
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-50 flex items-center gap-6">
-                <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner"><i class="fa-solid fa-cloud-arrow-down"></i></div>
-                <div><h3 class="font-black text-2xl">Acesso Livre</h3><p class="text-gray-400 text-sm">Baixe e leia offline</p></div>
-            </div>
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-50 flex items-center gap-6">
-                <div class="w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner"><i class="fa-solid fa-palette"></i></div>
-                <div><h3 class="font-black text-2xl">Cultura</h3><p class="text-gray-400 text-sm">Autores Moçambicanos</p></div>
-            </div>
-        </section>
-
-        <!-- Featured -->
-        <section class="max-w-7xl mx-auto px-6 mb-32">
-            <div class="flex justify-between items-end mb-12">
-                <div>
-                    <h2 class="text-4xl font-black text-gray-900 tracking-tight">Destaques Culturais</h2>
-                    <p class="text-gray-500 mt-2 font-medium">Obras essenciais selecionadas pela nossa curadoria.</p>
-                </div>
-                <button onclick="navigateTo('catalog')" class="text-teal-600 font-black flex items-center gap-2 group">Ver Tudo <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i></button>
-            </div>
-            <div id="featured-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                <!-- Injetado via JS -->
-            </div>
-        </section>
-    </div>
-
-    <div id="page-catalog" class="page-content hidden">
-        <div class="max-w-7xl mx-auto px-6 py-20">
-            <div class="mb-16">
-                <h1 class="text-5xl font-black text-gray-900 mb-6">Catálogo Digital</h1>
-                <div class="flex flex-col lg:flex-row gap-6">
-                    <div class="flex-grow relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="search-input" oninput="filterCatalog()" placeholder="Pesquisar por obra ou autor moçambicano..." class="w-full pl-14 pr-6 py-5 rounded-2xl bg-white border border-gray-100 shadow-sm focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 outline-none transition-all text-lg">
-                    </div>
-                    <select id="genre-filter" onchange="filterCatalog()" class="bg-white border border-gray-100 px-6 py-5 rounded-2xl font-bold outline-none focus:ring-4 focus:ring-teal-500/10">
-                        <option value="Todos">Todos os Gêneros</option>
-                        <option value="Educação">Educação</option>
-                        <option value="Romance">Romance</option>
-                        <option value="História">História</option>
-                        <option value="Tecnologia">Tecnologia</option>
-                    </select>
-                </div>
-            </div>
-            <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                <!-- Injetado via JS -->
-            </div>
         </div>
     </div>
 
-    <div id="page-support" class="page-content hidden">
-        <div class="max-w-5xl mx-auto px-6 py-24 text-center">
-            <h1 class="text-5xl font-black mb-8">Canal de Apoio</h1>
-            <p class="text-xl text-gray-500 mb-16 max-w-2xl mx-auto">Precisa de ajuda ou quer sugerir uma obra? Estamos disponíveis 24/7 através dos nossos canais digitais.</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <a href="https://wa.me/258858799196" class="bg-white p-12 rounded-[3rem] shadow-xl border border-gray-50 hover:border-teal-500 transition-all group">
-                    <div class="w-20 h-20 bg-green-50 text-green-600 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-8 group-hover:scale-110 transition-transform"><i class="fa-brands fa-whatsapp"></i></div>
-                    <h3 class="text-2xl font-black mb-2">WhatsApp</h3>
-                    <p class="text-gray-400 font-medium">+258 85 8799196</p>
-                </a>
-                <a href="mailto:martabitoneb@gmail.com" class="bg-white p-12 rounded-[3rem] shadow-xl border border-gray-50 hover:border-teal-500 transition-all group">
-                    <div class="w-20 h-20 bg-teal-50 text-teal-600 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-8 group-hover:scale-110 transition-transform"><i class="fa-solid fa-envelope"></i></div>
-                    <h3 class="text-2xl font-black mb-2">E-mail Oficial</h3>
-                    <p class="text-gray-400 font-medium">martabitoneb@gmail.com</p>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div id="page-admin-login" class="page-content hidden">
-        <div class="min-h-[80vh] flex items-center justify-center px-6">
-            <div class="max-w-md w-full bg-white p-12 rounded-[3rem] shadow-2xl border border-gray-100">
-                <div class="text-center mb-10">
-                    <div class="w-20 h-20 bg-teal-600 rounded-3xl flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-xl shadow-teal-500/20"><i class="fa-solid fa-shield-halved"></i></div>
-                    <h1 class="text-3xl font-black text-gray-900">Área Restrita</h1>
-                    <p class="text-gray-500 font-medium">Acesso para Administradores</p>
-                </div>
-                <form onsubmit="handleAdminLogin(event)" class="space-y-6">
-                    <input type="text" id="admin-user" required placeholder="Usuário" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 outline-none focus:ring-4 focus:ring-teal-500/10 text-gray-900 font-bold">
-                    <input type="password" id="admin-pass" required placeholder="Senha" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 outline-none focus:ring-4 focus:ring-teal-500/10 text-gray-900 font-bold">
-                    <button type="submit" class="w-full bg-teal-600 text-white font-black py-5 rounded-2xl shadow-xl hover:bg-teal-700 transition-all">Entrar no Sistema</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div id="page-admin-dashboard" class="page-content hidden">
-        <div class="max-w-7xl mx-auto px-6 py-16">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
-                <div>
-                    <h1 class="text-4xl font-black text-gray-900">Gestão de Acervo</h1>
-                    <p class="text-gray-500 font-medium">Painel de controle da biblioteca digital.</p>
-                </div>
-                <button onclick="toggleAddBookForm()" class="bg-teal-600 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-3 shadow-xl shadow-teal-500/20">
-                    <i class="fa-solid fa-plus"></i> Publicar Nova Obra
-                </button>
-            </div>
-
-            <!-- Form Adicionar Livro -->
-            <div id="add-book-form" class="hidden bg-white p-10 rounded-[3rem] shadow-2xl border border-teal-50 mb-12 fade-in">
-                <form onsubmit="handleAddBook(event)" class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    <div class="space-y-6">
-                        <div class="border-2 border-dashed border-gray-200 rounded-[2rem] p-10 text-center relative hover:border-teal-400 transition-all">
-                            <input type="file" id="book-file" accept=".pdf,.epub" class="absolute inset-0 opacity-0 cursor-pointer z-10">
-                            <div id="file-preview-name" class="text-gray-400 font-bold"><i class="fa-solid fa-cloud-arrow-up text-3xl mb-4 block"></i> Selecionar PDF/EPUB</div>
-                        </div>
-                        <input type="text" id="book-title" required placeholder="Título da Obra" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 text-gray-900 font-bold outline-none focus:ring-4 focus:ring-teal-500/10">
-                        <input type="text" id="book-author" required placeholder="Autor" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 text-gray-900 font-bold outline-none focus:ring-4 focus:ring-teal-500/10">
-                    </div>
-                    <div class="space-y-6">
-                        <div class="flex justify-between items-center px-1">
-                            <span class="text-sm font-bold text-gray-500">Sinopse Narrativa</span>
-                            <button type="button" onclick="aiGenerateDescription()" class="text-xs font-black text-teal-600 uppercase tracking-widest"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i> IA Gerar</button>
-                        </div>
-                        <textarea id="book-desc" required rows="6" class="w-full px-6 py-4 rounded-[2rem] bg-gray-50 border border-gray-100 text-gray-900 font-medium outline-none focus:ring-4 focus:ring-teal-500/10 resize-none" placeholder="Escreva sobre a obra..."></textarea>
-                        <select id="book-genre" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 font-bold outline-none">
-                            <option value="Educação">Educação</option>
-                            <option value="Romance">Romance</option>
-                            <option value="História">História</option>
-                            <option value="Tecnologia">Tecnologia</option>
-                        </select>
-                        <button type="submit" class="w-full bg-teal-600 text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-teal-500/30">Salvar na Biblioteca</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="bg-white rounded-[3rem] shadow-xl overflow-hidden border border-gray-50">
-                <table class="w-full text-left">
-                    <thead class="bg-gray-50/50">
-                        <tr class="border-b border-gray-100">
-                            <th class="px-8 py-6 text-xs font-black text-gray-400 uppercase tracking-widest">Obra</th>
-                            <th class="px-8 py-6 text-xs font-black text-gray-400 uppercase tracking-widest">Formato</th>
-                            <th class="px-8 py-6 text-xs font-black text-gray-400 uppercase tracking-widest text-right">Controle</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-table-body" class="divide-y divide-gray-50">
-                        <!-- Injetado via JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+    <!-- Conteúdo Principal Dinâmico -->
+    <main id="app-content" class="flex-grow">
+        <!-- Vistas carregadas aqui -->
+    </main>
 
     <!-- Rodapé -->
-    <footer class="bg-gray-900 text-gray-400 py-20 mt-20">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-16">
-            <div class="col-span-1 md:col-span-2">
-                <h2 class="text-3xl font-black text-white mb-6">Minha Biblioteca On</h2>
-                <p class="text-lg leading-relaxed max-w-sm mb-8">"Moçambique digital em suas mãos."<br>Democratizando o acesso ao conhecimento através da tecnologia.</p>
-                <div class="flex gap-6 text-2xl text-white">
-                    <a href="#" class="hover:text-teal-500 transition-colors"><i class="fa-brands fa-facebook"></i></a>
-                    <a href="https://wa.me/258858799196" class="hover:text-teal-500 transition-colors"><i class="fa-brands fa-whatsapp"></i></a>
-                    <a href="#" class="hover:text-teal-500 transition-colors"><i class="fa-brands fa-instagram"></i></a>
+    <footer class="bg-gray-900 text-gray-400 py-16 px-6 border-t border-white/5 mt-auto">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div>
+                <h4 class="text-white font-black text-xl mb-4">Minha Biblioteca On</h4>
+                <p class="text-xs uppercase tracking-widest leading-loose">Democratizando a leitura em Moçambique.</p>
+                <div class="flex gap-4 mt-6">
+                    <a href="#" class="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center hover:bg-teal-600 transition-all"><i class="fa-brands fa-facebook-f text-white"></i></a>
+                    <a href="https://wa.me/258858799196" target="_blank" class="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center hover:bg-green-600 transition-all"><i class="fa-brands fa-whatsapp text-white"></i></a>
                 </div>
             </div>
             <div>
-                <h3 class="text-white font-black uppercase text-xs tracking-widest mb-8">Navegação</h3>
-                <ul class="space-y-4 font-bold">
-                    <li><a href="#" onclick="navigateTo('home')" class="hover:text-white">Início</a></li>
-                    <li><a href="#" onclick="navigateTo('catalog')" class="hover:text-white">Catálogo</a></li>
-                    <li><a href="#" onclick="navigateTo('support')" class="hover:text-white">Apoio</a></li>
-                </ul>
+                <h4 class="text-white font-black text-sm uppercase mb-6 tracking-widest">Contacto Directo</h4>
+                <div class="space-y-4">
+                    <p class="flex items-center gap-3 text-white font-bold"><i class="fa-solid fa-envelope text-teal-600"></i> martabitoneb@gmail.com</p>
+                    <p class="flex items-center gap-3 text-white font-bold"><i class="fa-solid fa-phone text-teal-600"></i> +258 858799196</p>
+                </div>
             </div>
             <div>
-                <h3 class="text-white font-black uppercase text-xs tracking-widest mb-8">Contato</h3>
-                <ul class="space-y-4 font-bold">
-                    <li>Maputo, Moçambique</li>
-                    <li>martabitoneb@gmail.com</li>
-                    <li>+258 85 8799196</li>
-                </ul>
+                <h4 class="text-white font-black text-sm uppercase mb-6 tracking-widest">Slogan</h4>
+                <p class="text-xl font-black text-teal-500 italic">"Moçambique digital em suas mãos"</p>
             </div>
         </div>
-        <div class="max-w-7xl mx-auto px-6 pt-12 mt-12 border-t border-white/5 text-center text-xs font-black uppercase tracking-widest">
-            © 2024 Minha Biblioteca On. Desenvolvido para Moçambique.
+        <div class="mt-16 text-center text-[9px] font-black uppercase tracking-[0.5em] opacity-30">
+            © 2024 Biblioteca On Moçambique. Todos os direitos reservados.
         </div>
     </footer>
 
-    <!-- Modal do Leitor -->
-    <div id="reader-modal" class="hidden fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 lg:p-10">
-        <div class="bg-[#f2efe4] w-full max-w-7xl h-full rounded-[3rem] flex flex-col overflow-hidden shadow-2xl relative">
-            
-            <!-- Barra Superior do Leitor -->
-            <div class="bg-white/95 border-b border-gray-100 px-8 py-5 flex justify-between items-center z-50">
-                <div class="flex items-center gap-5">
-                    <img id="reader-cover" src="" class="w-10 h-14 object-cover rounded shadow-md" alt="">
-                    <div>
-                        <h2 id="reader-title" class="font-black text-gray-900 leading-tight">Título do Livro</h2>
-                        <p id="reader-author" class="text-[10px] text-teal-600 font-black uppercase tracking-widest">Autor</p>
-                    </div>
+    <!-- Modais -->
+    <div id="reader-modal" class="fixed inset-0 z-[150] bg-black/98 flex items-center justify-center md:p-10 hidden">
+        <div class="bg-white w-full max-w-7xl h-full flex flex-col md:rounded-[3rem] overflow-hidden shadow-2xl relative">
+            <div class="p-6 border-b flex justify-between items-center bg-gray-50">
+                <div id="reader-meta" class="flex items-center gap-4">
+                    <!-- Info do livro -->
                 </div>
-                <div class="flex bg-gray-100 p-1.5 rounded-2xl">
-                    <button id="tab-read" onclick="switchReaderTab('read')" class="px-8 py-2.5 rounded-xl text-xs font-black transition-all bg-white text-teal-600 shadow-md">Leitura</button>
-                    <button id="tab-comments" onclick="switchReaderTab('comments')" class="px-8 py-2.5 rounded-xl text-xs font-black transition-all text-gray-500">Críticas</button>
-                </div>
-                <button onclick="closeReader()" class="w-12 h-12 rounded-full hover:bg-gray-100 text-gray-400 hover:text-red-500 flex items-center justify-center transition-colors">
+                <button onclick="closeReader()" class="w-12 h-12 rounded-full hover:bg-red-50 hover:text-red-500 transition-all flex items-center justify-center">
                     <i class="fa-solid fa-xmark text-2xl"></i>
                 </button>
             </div>
-
-            <!-- Área de Conteúdo do Leitor -->
-            <div id="reader-content-area" class="flex-grow relative bg-[#e8e4d9] overflow-hidden">
-                
-                <!-- Modo PDF -->
-                <div id="reader-pdf-view" class="hidden w-full h-full p-4 lg:p-10">
-                    <iframe id="pdf-frame" src="" class="w-full h-full rounded-2xl shadow-2xl bg-white border-none" title="Leitor PDF"></iframe>
-                </div>
-
-                <!-- Modo EPUB -->
-                <div id="reader-epub-view" class="hidden w-full h-full flex flex-col items-center justify-center text-center p-12">
-                    <div class="w-32 h-32 bg-teal-50 text-teal-600 rounded-[2.5rem] flex items-center justify-center text-5xl mb-10"><i class="fa-solid fa-file-invoice"></i></div>
-                    <h3 class="text-4xl font-black text-gray-900 mb-4">Formato EPUB Digital</h3>
-                    <p class="text-xl text-gray-500 mb-12 max-w-lg">Este ficheiro é otimizado para Kindle e E-readers. Descarregue para a sua biblioteca pessoal.</p>
-                    <a id="epub-download-link" href="#" download class="bg-teal-600 text-white px-12 py-5 rounded-2xl font-black text-lg shadow-2xl shadow-teal-500/30 flex items-center gap-4 active:scale-95"><i class="fa-solid fa-download"></i> Baixar Agora</a>
-                </div>
-
-                <!-- Modo Livro (Texto) -->
-                <div id="reader-book-view" class="hidden w-full h-full flex flex-col lg:flex-row items-center justify-center p-4 lg:p-12">
-                    <div class="book-container relative w-full max-w-6xl h-full flex flex-col lg:flex-row shadow-2xl rounded-3xl overflow-hidden animate-in zoom-in-95 duration-700">
-                        <div class="absolute left-1/2 top-0 bottom-0 w-20 -ml-10 book-spine-shadow z-10 pointer-events-none hidden lg:block"></div>
-                        <!-- Páginas -->
-                        <div id="book-page-left" class="flex-1 bg-[#fdfcf8] p-10 lg:p-20 flex flex-col border-r border-gray-100 page-texture relative overflow-y-auto custom-scrollbar">
-                            <div class="mb-12 flex justify-between items-center opacity-30 font-serif italic text-[10px] uppercase">
-                                <span id="page-left-book-title">Título</span>
-                                <span id="page-left-num">1</span>
-                            </div>
-                            <div class="font-serif prose max-w-none text-xl lg:text-2xl leading-relaxed text-gray-800" id="page-left-content"></div>
-                        </div>
-                        <div id="book-page-right" class="hidden lg:flex flex-1 bg-[#fdfcf8] p-20 flex flex-col page-texture relative overflow-y-auto custom-scrollbar">
-                            <div class="mb-12 flex justify-between items-center opacity-30 font-serif italic text-[10px] uppercase">
-                                <span id="page-right-num">2</span>
-                                <span id="page-right-book-author">Autor</span>
-                            </div>
-                            <div class="font-serif prose max-w-none text-2xl leading-relaxed text-gray-800" id="page-right-content"></div>
-                        </div>
-                        <!-- Controles -->
-                        <div class="absolute bottom-10 left-0 right-0 flex justify-center items-center gap-10 z-20 pointer-events-none">
-                            <button onclick="prevPage()" id="btn-prev" class="w-16 h-16 rounded-full bg-white shadow-2xl flex items-center justify-center text-teal-600 hover:scale-110 active:scale-95 transition-all pointer-events-auto"><i class="fa-solid fa-chevron-left text-xl"></i></button>
-                            <div id="page-indicator" class="bg-black/90 text-white px-8 py-2.5 rounded-full text-[11px] font-black tracking-[0.2em] uppercase shadow-2xl">Pág. 1</div>
-                            <button onclick="nextPage()" id="btn-next" class="w-16 h-16 rounded-full bg-white shadow-2xl flex items-center justify-center text-teal-600 hover:scale-110 active:scale-95 transition-all pointer-events-auto"><i class="fa-solid fa-chevron-right text-xl"></i></button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Secção de Comentários -->
-                <div id="reader-comments-view" class="hidden w-full h-full bg-white overflow-y-auto">
-                    <div class="max-w-4xl mx-auto py-20 px-8">
-                        <h2 class="text-4xl font-black mb-12 flex items-center gap-4"><i class="fa-solid fa-comments text-teal-600"></i> Críticas e Notas</h2>
-                        <div id="comments-list" class="space-y-6 mb-16">
-                            <!-- Injetado via JS -->
-                        </div>
-                        <div class="bg-teal-600 p-12 rounded-[3rem] shadow-2xl text-white">
-                            <h3 class="text-2xl font-black mb-8">Deixe sua avaliação</h3>
-                            <form onsubmit="handlePostComment(event)" class="space-y-6">
-                                <input type="text" id="comment-user" required placeholder="Seu nome" class="w-full px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-white/50 outline-none focus:bg-white focus:text-gray-900 transition-all font-bold">
-                                <textarea id="comment-text" required rows="4" placeholder="O que achou desta obra?" class="w-full px-6 py-4 rounded-3xl bg-white/10 border border-white/20 text-white placeholder-white/50 outline-none focus:bg-white focus:text-gray-900 transition-all font-medium resize-none"></textarea>
-                                <button type="submit" class="w-full bg-white text-teal-600 font-black py-5 rounded-2xl shadow-xl hover:bg-teal-50 transition-all active:scale-95">Publicar Comentário</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+            <div id="reader-container" class="flex-grow bg-gray-900 overflow-hidden relative">
+                <!-- Iframe ou Reader EPUB -->
             </div>
         </div>
     </div>
 
-    <!-- Script de Funcionalidade -->
-    <script type="module">
-        import { GoogleGenAI } from "@google/genai";
+    <!-- Lógica da Aplicação -->
+    <script>
+        // --- CONSTANTES ---
+        const SUPABASE_URL = 'https://mxhilwupxdwzxefntamq.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14aGlsd3VweGR3enhlZm50YW1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1NDkxMjQsImV4cCI6MjA4NDEyNTEyNH0.qHtknvb43piZgBjcX7_MFLiV8FjbnubglYv0p4P2dGc';
+        const { createClient } = supabase;
+        const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // --- Estado Global ---
-        const INITIAL_BOOKS = [
-            { id: '1', title: 'Educação em Moçambique', author: 'Alberto Samora', description: 'Uma análise profunda sobre o sistema educativo moçambicano desde a independência. Este livro explora os marcos históricos e as políticas públicas que moldaram a nossa educação.', genre: 'Educação', coverUrl: 'https://picsum.photos/seed/edu1/400/600', isFeatured: true, dateAdded: '2023-10-01' },
-            { id: '2', title: 'A Última Noite de Quelimane', author: 'Maria Mabote', description: 'Um romance épico passado nas margens do Rio Bons Sinais. Uma história de amor e resistência durante os anos de transformação social em Moçambique.', genre: 'Romance', coverUrl: 'https://picsum.photos/seed/rom1/400/600', isFeatured: true, dateAdded: '2023-11-15' },
-            { id: '3', title: 'Império de Monomotapa', author: 'João das Neves', description: 'Exploração histórica do antigo Império de Monomotapa e sua influência na África Austral. Um guia completo para estudantes de história.', genre: 'História', coverUrl: 'https://picsum.photos/seed/his1/400/600', isFeatured: false, dateAdded: '2024-01-20' },
-            { id: '4', title: 'Guia Tech Moçambique', author: 'Paulo Silva', description: 'Como utilizar ferramentas digitais no contexto moçambicano para educação e produtividade.', genre: 'Tecnologia', coverUrl: 'https://picsum.photos/seed/tech1/400/600', isFeatured: true, dateAdded: '2024-03-05' }
-        ];
+        const GENRES = ['Educação', 'Romance', 'Ficção', 'História', 'Ciência', 'Biografia', 'Tecnologia'];
+        let ALL_BOOKS = [];
+        let CURRENT_USER = null;
+        let HISTORY = JSON.parse(localStorage.getItem('reading_history') || '[]');
+        let epubRendition = null;
 
-        let state = {
-            books: JSON.parse(localStorage.getItem('mbo_books')) || INITIAL_BOOKS,
-            comments: JSON.parse(localStorage.getItem('mbo_comments')) || [],
-            currentUser: JSON.parse(localStorage.getItem('mbo_user')) || null,
-            activeReader: null,
-            readerPage: 0,
-            searchQuery: '',
-            genreFilter: 'Todos'
-        };
+        // --- INICIALIZAÇÃO ---
+        async function init() {
+            try {
+                // Verificar Sessão
+                const { data: { session } } = await db.auth.getSession();
+                CURRENT_USER = session?.user || null;
+                updateAuthUI();
 
-        // --- Navegação ---
-        window.navigateTo = (page) => {
-            document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
-            document.getElementById(`page-${page}`).classList.remove('hidden');
-            window.scrollTo(0, 0);
-            if(page === 'catalog') renderCatalog();
-            if(page === 'home') renderHome();
-            if(page === 'admin-dashboard') renderAdmin();
-        };
+                // Carregar Livros
+                const { data, error } = await db.from('books').select('*').order('date_added', { ascending: false });
+                if (error) throw error;
+                ALL_BOOKS = data || [];
 
-        window.toggleMobileMenu = () => {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        };
-
-        // --- Renderização ---
-        function renderNav() {
-            const area = document.getElementById('admin-nav-area');
-            const mobileArea = document.getElementById('admin-nav-mobile');
-            
-            if (state.currentUser?.role === 'admin') {
-                const html = `
-                    <div class="flex items-center gap-4">
-                        <button onclick="navigateTo('admin-dashboard')" class="bg-teal-600 text-white px-5 py-2.5 rounded-xl text-xs font-black shadow-lg">Painel Admin</button>
-                        <button onclick="logout()" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"><i class="fa-solid fa-right-from-bracket"></i></button>
-                    </div>`;
-                area.innerHTML = html;
-                mobileArea.innerHTML = `
-                    <button onclick="navigateTo('admin-dashboard'); toggleMobileMenu()" class="text-2xl font-bold text-teal-600 mb-6 block">Painel Admin</button>
-                    <button onclick="logout(); toggleMobileMenu()" class="text-xl font-bold text-red-500">Sair</button>`;
-            } else {
-                area.innerHTML = `
-                    <button onclick="navigateTo('admin-login')" class="text-gray-400 hover:text-teal-600 transition-all flex items-center gap-2 font-bold text-xs border border-gray-100 px-4 py-2 rounded-xl">
-                        <i class="fa-solid fa-lock text-[10px]"></i> Gestão
-                    </button>`;
-                mobileArea.innerHTML = `<button onclick="navigateTo('admin-login'); toggleMobileMenu()" class="text-xl font-bold text-gray-400">Login Admin</button>`;
+                // Router Inicial
+                navigateTo('home');
+                
+                // Esconder Loader
+                document.getElementById('main-loader').style.display = 'none';
+            } catch (err) {
+                console.error("Erro na inicialização:", err);
+                document.getElementById('main-loader').innerHTML = `<div class="p-10 text-center"><h2 class="text-2xl font-black text-red-600">Erro Fatal</h2><p class="mt-4 text-gray-500">Falha ao ligar ao servidor. Verifique a sua internet.</p></div>`;
             }
+        }
+
+        // --- UI GERAL ---
+        function updateAuthUI() {
+            const nav = document.getElementById('nav-auth-area');
+            const mobile = document.getElementById('mobile-auth-area');
+            
+            if (CURRENT_USER) {
+                const username = CURRENT_USER.user_metadata?.username || CURRENT_USER.email.split('@')[0];
+                const html = `
+                    <button onclick="navigateTo('profile')" class="flex items-center gap-2 text-sm font-black text-gray-900 hover:text-teal-600">
+                        <i class="fa-solid fa-circle-user text-xl text-teal-600"></i>
+                        <span>${username}</span>
+                    </button>
+                    <button onclick="handleLogout()" class="text-[9px] font-black uppercase text-gray-400 hover:text-red-600">Sair</button>
+                `;
+                nav.innerHTML = html;
+                mobile.innerHTML = `
+                    <a href="javascript:void(0)" onclick="navigateTo('profile'); toggleMobileMenu(false)" class="text-5xl font-black text-teal-400">4. Perfil</a>
+                    <a href="javascript:void(0)" onclick="handleLogout(); toggleMobileMenu(false)" class="text-2xl font-black text-white/50">Terminar Sessão</a>
+                `;
+            } else {
+                nav.innerHTML = `
+                    <button onclick="navigateTo('login')" class="text-sm font-black text-gray-500 hover:text-teal-600">Login</button>
+                    <button onclick="navigateTo('register')" class="btn-primary py-2 px-5">Criar Conta</button>
+                `;
+                mobile.innerHTML = `<a href="javascript:void(0)" onclick="navigateTo('login'); toggleMobileMenu(false)" class="text-5xl font-black text-white">4. Login</a>`;
+            }
+        }
+
+        function toggleMobileMenu(open) {
+            const menu = document.getElementById('mobile-menu');
+            if (open) {
+                menu.classList.remove('translate-x-full', 'opacity-0', 'pointer-events-none');
+                menu.classList.add('translate-x-0', 'opacity-100');
+                document.body.style.overflow = 'hidden';
+            } else {
+                menu.classList.add('translate-x-full', 'opacity-0', 'pointer-events-none');
+                menu.classList.remove('translate-x-0', 'opacity-100');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // --- SISTEMA DE NAVEGAÇÃO ---
+        function navigateTo(page) {
+            const content = document.getElementById('app-content');
+            content.innerHTML = '';
+            window.scrollTo(0,0);
+            
+            switch(page) {
+                case 'home': renderHome(); break;
+                case 'catalog': renderCatalog(); break;
+                case 'support': renderSupport(); break;
+                case 'login': renderLogin(); break;
+                case 'register': renderRegister(); break;
+                case 'profile': renderProfile(); break;
+                case 'admin': renderAdminAuth(); break;
+                default: renderHome();
+            }
+        }
+
+        // --- VISTAS ---
+
+        function renderHome() {
+            const featured = ALL_BOOKS.filter(b => b.is_featured).slice(0, 4);
+            const container = document.getElementById('app-content');
+            
+            container.innerHTML = `
+                <div class="animate-fade-in">
+                    <section class="bg-gray-900 relative h-[600px] flex items-center px-6 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover opacity-30">
+                        <div class="max-w-7xl mx-auto w-full relative z-10">
+                            <div class="max-w-2xl">
+                                <span class="bg-teal-600 text-white px-4 py-1 rounded text-[10px] font-black uppercase tracking-[0.3em] mb-6 inline-block">Moçambique Digital</span>
+                                <h1 class="text-5xl md:text-7xl font-black text-white leading-tight mb-8">Moçambique digital em suas mãos.</h1>
+                                <button onclick="navigateTo('catalog')" class="btn-primary py-5 px-10 text-lg">Aceder ao Catálogo</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    ${HISTORY.length > 0 ? `
+                        <section class="py-16 bg-teal-50 border-b border-teal-100">
+                            <div class="max-w-7xl mx-auto px-6">
+                                <h2 class="text-[10px] font-black text-teal-600 uppercase tracking-widest mb-8">Continuar a ler</h2>
+                                <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+                                    ${HISTORY.map(book => `
+                                        <div onclick="openReader('${book.id}')" class="cursor-pointer group">
+                                            <div class="aspect-[2/3] rounded-lg overflow-hidden shadow-md bg-white mb-2">
+                                                <img src="${book.cover_url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
+                                            </div>
+                                            <p class="text-[10px] font-black text-black truncate">${book.title}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </section>
+                    ` : ''}
+
+                    <section class="py-24 px-6 bg-white">
+                        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center">
+                            <div>
+                                <h2 class="text-4xl font-black mb-8 leading-tight">Quem Somos?</h2>
+                                <p class="text-xl text-gray-600 font-bold mb-6">A Biblioteca On é a maior rede digital dedicada à educação e cultura em Moçambique.</p>
+                                <p class="text-gray-500 font-medium leading-relaxed">Iniciamos esta jornada para derrubar barreiras geográficas. Acreditamos que cada moçambicano deve ter acesso livre ao conhecimento, de Maputo ao Rovuma.</p>
+                            </div>
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&q=80" class="rounded-[3rem] shadow-2xl relative z-10">
+                                <div class="absolute -bottom-6 -right-6 w-full h-full bg-teal-100 rounded-[3rem] -z-0"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="py-24 px-6 bg-gray-50">
+                        <div class="max-w-7xl mx-auto">
+                            <div class="flex justify-between items-end mb-12">
+                                <h2 class="text-3xl font-black">Obras em Destaque</h2>
+                                <button onclick="navigateTo('catalog')" class="text-xs font-black text-teal-600 uppercase tracking-widest border-b-2 border-teal-600 pb-1">Ver tudo</button>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                                ${featured.map(book => createBookCard(book)).join('')}
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            `;
         }
 
         function createBookCard(book) {
             return `
-                <div class="group bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
-                    <div class="relative aspect-[2/3] overflow-hidden">
-                        <img src="${book.coverUrl}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                            <button onclick="openReader('${book.id}')" class="w-14 h-14 bg-white text-teal-600 rounded-full flex items-center justify-center shadow-2xl hover:bg-teal-50"><i class="fa-solid fa-book-open text-xl"></i></button>
+                <div class="group bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
+                    <div class="relative aspect-[2/3] overflow-hidden bg-gray-100">
+                        <img src="${book.cover_url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-white/95 text-teal-700 text-[9px] font-black px-2 py-1 rounded uppercase shadow-sm">${book.genre}</span>
                         </div>
-                        <div class="absolute top-4 left-4">
-                            <span class="bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black uppercase text-teal-700 tracking-widest shadow-sm">${book.genre}</span>
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300">
+                            <button onclick="openReader('${book.id}')" class="w-14 h-14 bg-white text-teal-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-90 transition-all">
+                                <i class="fa-solid fa-book-open text-2xl"></i>
+                            </button>
                         </div>
                     </div>
-                    <div class="p-6 cursor-pointer" onclick="openReader('${book.id}')">
-                        <h3 class="font-black text-gray-900 text-lg line-clamp-2 leading-tight group-hover:text-teal-600 transition-colors">${book.title}</h3>
-                        <p class="text-gray-400 text-xs font-bold mt-2 uppercase tracking-widest">${book.author}</p>
+                    <div class="p-6">
+                        <h3 class="font-black text-black line-clamp-2 min-h-[3rem] leading-tight">${book.title}</h3>
+                        <p class="text-gray-400 text-xs font-bold mt-2 uppercase tracking-wide">${book.author}</p>
                     </div>
                 </div>
             `;
         }
 
-        function renderHome() {
-            const grid = document.getElementById('featured-grid');
-            const featured = state.books.filter(b => b.isFeatured).slice(0, 4);
-            grid.innerHTML = featured.map(createBookCard).join('');
-        }
-
         function renderCatalog() {
-            const grid = document.getElementById('catalog-grid');
-            const filtered = state.books.filter(book => {
-                const query = document.getElementById('search-input')?.value.toLowerCase() || '';
-                const genre = document.getElementById('genre-filter')?.value || 'Todos';
-                const matchesSearch = book.title.toLowerCase().includes(query) || book.author.toLowerCase().includes(query);
-                const matchesGenre = genre === 'Todos' || book.genre === genre;
-                return matchesSearch && matchesGenre;
-            });
-            grid.innerHTML = filtered.length ? filtered.map(createBookCard).join('') : `<div class="col-span-full py-20 text-center text-gray-400 font-bold">Nenhuma obra encontrada.</div>`;
+            const container = document.getElementById('app-content');
+            container.innerHTML = `
+                <div class="max-w-7xl mx-auto px-6 py-12 animate-fade-in">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+                        <div>
+                            <h1 class="text-4xl font-black text-black">Catálogo Completo</h1>
+                            <p class="text-gray-500 mt-2 font-medium">Explore o nosso acervo digital crescente.</p>
+                        </div>
+                        <div class="w-full md:w-96 relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input id="search-input" oninput="handleSearch(this.value)" class="input-field pl-14" placeholder="Pesquisar título ou autor...">
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3 overflow-x-auto pb-8 mb-10 no-scrollbar items-center border-b">
+                        <button onclick="filterByGenre('Todos')" class="genre-pill active bg-teal-600 text-white font-black px-6 py-2 rounded-full text-xs uppercase border-2 border-teal-600">Todos</button>
+                        ${GENRES.map(g => `<button onclick="filterByGenre('${g}')" class="genre-pill bg-white text-gray-400 font-black px-6 py-2 rounded-full text-xs uppercase border-2 border-gray-100 hover:border-teal-600 hover:text-teal-600 transition-all">${g}</button>`).join('')}
+                    </div>
+
+                    <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        ${ALL_BOOKS.map(book => createBookCard(book)).join('')}
+                    </div>
+
+                    ${ALL_BOOKS.length === 0 ? `<div class="p-24 text-center text-gray-300 font-black italic">O catálogo está vazio de momento.</div>` : ''}
+                </div>
+            `;
         }
 
-        window.filterCatalog = renderCatalog;
+        window.handleSearch = (query) => {
+            const grid = document.getElementById('catalog-grid');
+            const filtered = ALL_BOOKS.filter(b => 
+                b.title.toLowerCase().includes(query.toLowerCase()) || 
+                b.author.toLowerCase().includes(query.toLowerCase())
+            );
+            grid.innerHTML = filtered.map(book => createBookCard(book)).join('');
+        };
 
-        // --- Admin ---
-        window.handleAdminLogin = (e) => {
+        window.filterByGenre = (genre) => {
+            // Atualizar UI dos botões
+            document.querySelectorAll('.genre-pill').forEach(btn => {
+                if (btn.innerText.toUpperCase() === genre.toUpperCase() || (genre === 'Todos' && btn.innerText === 'TODOS')) {
+                    btn.className = 'genre-pill bg-teal-600 text-white font-black px-6 py-2 rounded-full text-xs uppercase border-2 border-teal-600';
+                } else {
+                    btn.className = 'genre-pill bg-white text-gray-400 font-black px-6 py-2 rounded-full text-xs uppercase border-2 border-gray-100 hover:border-teal-600 hover:text-teal-600 transition-all';
+                }
+            });
+
+            const grid = document.getElementById('catalog-grid');
+            const filtered = genre === 'Todos' ? ALL_BOOKS : ALL_BOOKS.filter(b => b.genre === genre);
+            grid.innerHTML = filtered.map(book => createBookCard(book)).join('');
+        };
+
+        function renderSupport() {
+            const container = document.getElementById('app-content');
+            container.innerHTML = `
+                <div class="max-w-7xl mx-auto px-6 py-20 animate-fade-in grid md:grid-cols-2 gap-20">
+                    <div>
+                        <h1 class="text-5xl font-black mb-8 leading-tight">Canal de Apoio <br/> e Sugestões.</h1>
+                        <p class="text-xl text-gray-600 font-bold mb-12 italic">Fale connosco. A sua voz constrói esta biblioteca.</p>
+                        
+                        <div class="space-y-10">
+                            <div class="flex items-center gap-6">
+                                <div class="w-16 h-16 bg-green-50 text-green-500 rounded-3xl flex items-center justify-center text-3xl shadow-sm"><i class="fa-brands fa-whatsapp"></i></div>
+                                <div><p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">WhatsApp Directo</p><p class="text-2xl font-black text-black">858799196</p></div>
+                            </div>
+                            <div class="flex items-center gap-6">
+                                <div class="w-16 h-16 bg-teal-50 text-teal-600 rounded-3xl flex items-center justify-center text-3xl shadow-sm"><i class="fa-solid fa-envelope"></i></div>
+                                <div><p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">E-mail Oficial</p><p class="text-2xl font-black text-black">martabitoneb@gmail.com</p></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-12 rounded-[3rem] shadow-2xl border border-gray-100">
+                        <form id="support-form" onsubmit="handleSupportSubmit(event)" class="space-y-6">
+                            <input required name="name" class="input-field" placeholder="Seu Nome Completo">
+                            <input required name="email" type="email" class="input-field" placeholder="Seu Melhor E-mail">
+                            <textarea required name="msg" rows="4" class="input-field resize-none" placeholder="O que deseja dizer?"></textarea>
+                            <button type="submit" class="btn-primary w-full py-5 text-sm">Enviar Mensagem</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.handleSupportSubmit = async (e) => {
             e.preventDefault();
-            const user = document.getElementById('admin-user').value;
-            const pass = document.getElementById('admin-pass').value;
-            if(user === 'admin' && pass === 'moz_digital_2024') {
-                state.currentUser = { role: 'admin' };
-                localStorage.setItem('mbo_user', JSON.stringify(state.currentUser));
-                renderNav();
-                navigateTo('admin-dashboard');
+            const btn = e.target.querySelector('button');
+            const data = {
+                name: e.target.name.value,
+                email: e.target.email.value,
+                message: e.target.msg.value
+            };
+            
+            btn.disabled = true;
+            btn.innerText = "A Enviar...";
+            
+            const { error } = await db.from('messages').insert([data]);
+            
+            if (error) {
+                alert("Erro ao enviar mensagem.");
+                btn.disabled = false;
+                btn.innerText = "Enviar Mensagem";
             } else {
-                alert('Credenciais Incorretas.');
+                alert("Mensagem enviada com sucesso para a gestão!");
+                e.target.reset();
+                btn.disabled = false;
+                btn.innerText = "Enviar Mensagem";
             }
         };
 
-        window.logout = () => {
-            state.currentUser = null;
-            localStorage.removeItem('mbo_user');
-            renderNav();
+        function renderLogin() {
+            document.getElementById('app-content').innerHTML = `
+                <div class="min-h-[80vh] flex items-center justify-center px-6 animate-fade-in">
+                    <div class="bg-white p-12 rounded-[3rem] shadow-2xl border border-gray-100 w-full max-w-md">
+                        <div class="text-center mb-10">
+                            <div class="w-16 h-16 bg-teal-600 rounded-2xl flex items-center justify-center text-white text-3xl font-black mx-auto mb-6">M</div>
+                            <h1 class="text-3xl font-black text-black">Iniciar Sessão</h1>
+                            <p class="text-gray-400 font-bold mt-2">Aceda à sua estante digital.</p>
+                        </div>
+                        <form onsubmit="handleLoginSubmit(event)" class="space-y-6">
+                            <input required name="email" type="email" class="input-field" placeholder="E-mail de Leitor">
+                            <input required name="pass" type="password" class="input-field" placeholder="Palavra-passe">
+                            <button type="submit" class="btn-primary w-full py-5">Entrar</button>
+                        </form>
+                        <p class="text-center mt-8 text-sm font-bold text-gray-500">Ainda não tem conta? <button onclick="navigateTo('register')" class="text-teal-600 font-black hover:underline">Registe-se aqui</button></p>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.handleLoginSubmit = async (e) => {
+            e.preventDefault();
+            const email = e.target.email.value;
+            const pass = e.target.pass.value;
+            
+            const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
+            
+            if (error) {
+                alert("Dados de acesso incorretos.");
+            } else {
+                CURRENT_USER = data.user;
+                updateAuthUI();
+                navigateTo('home');
+            }
+        };
+
+        function renderRegister() {
+            document.getElementById('app-content').innerHTML = `
+                <div class="min-h-[80vh] flex items-center justify-center px-6 animate-fade-in">
+                    <div class="bg-white p-12 rounded-[3rem] shadow-2xl border border-gray-100 w-full max-w-md">
+                        <div class="text-center mb-10">
+                            <h1 class="text-3xl font-black text-black">Criar Conta</h1>
+                            <p class="text-gray-400 font-bold mt-2">Junte-se à comunidade literária.</p>
+                        </div>
+                        <form onsubmit="handleRegisterSubmit(event)" class="space-y-6">
+                            <input required name="user" class="input-field" placeholder="Nome de Utilizador">
+                            <input required name="email" type="email" class="input-field" placeholder="E-mail">
+                            <input required name="pass" type="password" class="input-field" placeholder="Palavra-passe (Min. 6)">
+                            <button type="submit" class="btn-primary w-full py-5">Registrar</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.handleRegisterSubmit = async (e) => {
+            e.preventDefault();
+            const username = e.target.user.value;
+            const email = e.target.email.value;
+            const pass = e.target.pass.value;
+            
+            const { data, error } = await db.auth.signUp({ 
+                email, 
+                password: pass,
+                options: { data: { username } }
+            });
+            
+            if (error) alert(error.message);
+            else {
+                alert("Conta criada! Pode iniciar sessão.");
+                navigateTo('login');
+            }
+        };
+
+        function renderProfile() {
+            if (!CURRENT_USER) return navigateTo('login');
+            const username = CURRENT_USER.user_metadata?.username || "Leitor";
+            
+            document.getElementById('app-content').innerHTML = `
+                <div class="max-w-4xl mx-auto px-6 py-20 animate-fade-in">
+                    <div class="bg-white rounded-[3rem] shadow-2xl border overflow-hidden">
+                        <div class="bg-teal-600 p-16 text-center text-white">
+                            <div class="w-24 h-24 bg-white text-teal-600 rounded-full mx-auto mb-6 flex items-center justify-center text-5xl font-black">${username[0].toUpperCase()}</div>
+                            <h2 class="text-3xl font-black uppercase tracking-widest">${username}</h2>
+                            <p class="opacity-70 font-bold mt-2">${CURRENT_USER.email}</p>
+                        </div>
+                        <div class="p-12">
+                            <h3 class="text-xl font-black mb-6">A Minha Actividade</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="p-6 bg-gray-50 rounded-2xl border">
+                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Estatuto</p>
+                                    <p class="font-bold text-black mt-1">Membro Activo</p>
+                                </div>
+                                <div class="p-6 bg-gray-50 rounded-2xl border">
+                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Obras Lidas</p>
+                                    <p class="font-bold text-black mt-1">${HISTORY.length}</p>
+                                </div>
+                            </div>
+                            <button onclick="handleLogout()" class="mt-12 w-full py-5 rounded-2xl bg-black text-white font-black hover:bg-red-600 transition-all">Terminar Sessão</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.handleLogout = async () => {
+            await db.auth.signOut();
+            CURRENT_USER = null;
+            updateAuthUI();
             navigateTo('home');
         };
 
-        window.toggleAddBookForm = () => {
-            document.getElementById('add-book-form').classList.toggle('hidden');
-        };
+        // --- GESTÃO / ADMIN ---
 
-        window.handleAddBook = async (e) => {
-            e.preventDefault();
-            const file = document.getElementById('book-file').files[0];
-            let fileUrl = "";
-            if(file) {
-                fileUrl = await new Promise(r => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => r(reader.result);
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            const newBook = {
-                id: Date.now().toString(),
-                title: document.getElementById('book-title').value,
-                author: document.getElementById('book-author').value,
-                description: document.getElementById('book-desc').value,
-                genre: document.getElementById('book-genre').value,
-                coverUrl: `https://picsum.photos/seed/${Math.random()}/400/600`,
-                fileUrl: fileUrl,
-                isFeatured: true,
-                dateAdded: new Date().toISOString()
-            };
-
-            state.books.unshift(newBook);
-            localStorage.setItem('mbo_books', JSON.stringify(state.books));
-            renderAdmin();
-            toggleAddBookForm();
-            e.target.reset();
-            alert('Obra publicada com sucesso!');
-        };
-
-        window.deleteBook = (id) => {
-            if(confirm('Eliminar esta obra?')) {
-                state.books = state.books.filter(b => b.id !== id);
-                localStorage.setItem('mbo_books', JSON.stringify(state.books));
-                renderAdmin();
-            }
-        };
-
-        function renderAdmin() {
-            const tbody = document.getElementById('admin-table-body');
-            tbody.innerHTML = state.books.map(book => `
-                <tr class="hover:bg-gray-50/50 transition-colors">
-                    <td class="px-8 py-6">
-                        <div class="flex items-center gap-4">
-                            <img src="${book.coverUrl}" class="w-10 h-14 object-cover rounded shadow-md">
-                            <div>
-                                <div class="font-bold text-gray-900">${book.title}</div>
-                                <div class="text-xs text-gray-400 font-bold uppercase tracking-widest">${book.author}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-8 py-6">
-                        <span class="bg-gray-100 text-gray-400 px-3 py-1 rounded-full text-[10px] font-black uppercase">${book.fileUrl ? (book.fileUrl.includes('pdf') ? 'PDF' : 'EPUB') : 'TEXTO'}</span>
-                    </td>
-                    <td class="px-8 py-6 text-right">
-                        <button onclick="deleteBook('${book.id}')" class="text-red-400 hover:text-red-600 transition-colors p-3"><i class="fa-solid fa-trash-can"></i></button>
-                    </td>
-                </tr>
-            `).join('');
+        function renderAdminAuth() {
+            document.getElementById('app-content').innerHTML = `
+                <div class="min-h-[70vh] flex items-center justify-center px-6 animate-fade-in">
+                    <div class="bg-white p-12 rounded-[2.5rem] shadow-2xl border border-gray-100 w-full max-w-sm text-center">
+                        <div class="w-16 h-16 bg-gray-900 text-white rounded-full flex items-center justify-center text-2xl mx-auto mb-6"><i class="fa-solid fa-lock"></i></div>
+                        <h2 class="text-2xl font-black mb-8">Portal Admin</h2>
+                        <form onsubmit="handleAdminPass(event)" class="space-y-4">
+                            <input name="pass" type="password" class="input-field text-center" placeholder="Senha Mestra">
+                            <button type="submit" class="btn-primary w-full">Aceder</button>
+                        </form>
+                    </div>
+                </div>
+            `;
         }
 
-        // --- Leitor ---
+        window.handleAdminPass = (e) => {
+            e.preventDefault();
+            if (e.target.pass.value === 'raquel24bleim26') {
+                renderAdminDashboard();
+            } else {
+                alert("Senha incorrecta.");
+            }
+        };
+
+        async function renderAdminDashboard() {
+            const container = document.getElementById('app-content');
+            container.innerHTML = `
+                <div class="max-w-7xl mx-auto px-6 py-12 animate-fade-in">
+                    <div class="flex justify-between items-center mb-12 border-b pb-8">
+                        <div>
+                            <h1 class="text-4xl font-black">Painel de Gestão</h1>
+                            <p class="text-gray-500 mt-2 font-bold">Gerencie o acervo e mensagens recebidas.</p>
+                        </div>
+                        <div class="flex gap-4">
+                            <button onclick="renderAdminDashboard()" class="font-black text-sm text-teal-600 border-b-2 border-teal-600">Obras</button>
+                            <button onclick="renderAdminMessages()" class="font-black text-sm text-gray-400 hover:text-teal-600">Mensagens</button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col lg:flex-row gap-12">
+                        <!-- Formulário de Upload -->
+                        <div class="lg:w-1/3">
+                            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border sticky top-24">
+                                <h3 class="text-xl font-black mb-6">Nova Obra</h3>
+                                <form id="upload-form" onsubmit="handleBookUpload(event)" class="space-y-4">
+                                    <input required name="title" class="input-field py-3 text-sm" placeholder="Título">
+                                    <input required name="author" class="input-field py-3 text-sm" placeholder="Autor">
+                                    <select name="genre" class="input-field py-3 text-sm">
+                                        ${GENRES.map(g => `<option value="${g}">${g}</option>`).join('')}
+                                    </select>
+                                    <div>
+                                        <label class="text-[9px] font-black uppercase text-gray-400 ml-2">Ficheiro (PDF/EPUB)</label>
+                                        <input required name="file" type="file" class="input-field py-3 text-sm mt-1">
+                                    </div>
+                                    <div>
+                                        <label class="text-[9px] font-black uppercase text-gray-400 ml-2">Capa (Imagem)</label>
+                                        <input required name="cover" type="file" accept="image/*" class="input-field py-3 text-sm mt-1">
+                                    </div>
+                                    <label class="flex items-center gap-3 font-bold text-sm cursor-pointer ml-2">
+                                        <input type="checkbox" name="featured" class="w-5 h-5 accent-teal-600"> Destacar Obra
+                                    </label>
+                                    <button type="submit" class="btn-primary w-full py-4 mt-4">Publicar</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Lista de Livros -->
+                        <div class="lg:w-2/3">
+                            <div class="bg-white rounded-3xl overflow-hidden border">
+                                <table class="w-full text-left">
+                                    <thead class="bg-gray-50 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                        <tr>
+                                            <th class="p-6">Obra</th>
+                                            <th class="p-6 text-right">Acções</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y">
+                                        ${ALL_BOOKS.map(book => `
+                                            <tr class="hover:bg-gray-50 transition-all">
+                                                <td class="p-6 flex items-center gap-4">
+                                                    <img src="${book.cover_url}" class="w-10 h-14 object-cover rounded shadow-sm">
+                                                    <div>
+                                                        <p class="font-black text-black">${book.title}</p>
+                                                        <p class="text-xs font-bold text-gray-400">${book.author}</p>
+                                                    </div>
+                                                </td>
+                                                <td class="p-6 text-right">
+                                                    <button onclick="handleDeleteBook('${book.id}')" class="w-10 h-10 bg-red-50 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all">
+                                                        <i class="fa-solid fa-trash-can"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function renderAdminMessages() {
+            const { data, error } = await db.from('messages').select('*').order('created_at', { ascending: false });
+            const container = document.getElementById('app-content');
+            
+            container.innerHTML = `
+                <div class="max-w-7xl mx-auto px-6 py-12 animate-fade-in">
+                    <div class="flex justify-between items-center mb-12 border-b pb-8">
+                        <div>
+                            <h1 class="text-4xl font-black">Painel de Gestão</h1>
+                            <p class="text-gray-500 mt-2 font-bold">Gerencie o acervo e mensagens recebidas.</p>
+                        </div>
+                        <div class="flex gap-4">
+                            <button onclick="renderAdminDashboard()" class="font-black text-sm text-gray-400 hover:text-teal-600">Obras</button>
+                            <button onclick="renderAdminMessages()" class="font-black text-sm text-teal-600 border-b-2 border-teal-600">Mensagens</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        ${data.map(msg => `
+                            <div class="bg-white p-8 rounded-[2rem] border-2 border-gray-100 shadow-sm relative group">
+                                <button onclick="handleDeleteMessage('${msg.id}')" class="absolute top-8 right-8 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><i class="fa-solid fa-trash-can"></i></button>
+                                <div class="flex justify-between mb-4">
+                                    <div>
+                                        <h3 class="text-xl font-black text-black">${msg.name}</h3>
+                                        <p class="text-teal-600 font-bold">${msg.email}</p>
+                                    </div>
+                                    <span class="text-xs text-gray-400 font-bold">${new Date(msg.created_at).toLocaleDateString()}</span>
+                                </div>
+                                <p class="text-gray-700 font-medium leading-relaxed bg-gray-50 p-6 rounded-2xl">${msg.message}</p>
+                            </div>
+                        `).join('')}
+                        ${data.length === 0 ? `<div class="p-24 text-center text-gray-300 italic">Nenhuma mensagem recebida.</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        window.handleBookUpload = async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const file = e.target.file.files[0];
+            const cover = e.target.cover.files[0];
+            
+            if (!file || !cover) return alert("Arquivos em falta.");
+            
+            btn.disabled = true;
+            btn.innerText = "A Carregar...";
+
+            try {
+                // Upload Capa
+                const coverPath = `covers/${Date.now()}_${cover.name}`;
+                await db.storage.from('library').upload(coverPath, cover);
+                const { data: cUrl } = db.storage.from('library').getPublicUrl(coverPath);
+                
+                // Upload Livro
+                const filePath = `books/${Date.now()}_${file.name}`;
+                await db.storage.from('library').upload(filePath, file);
+                const { data: fUrl } = db.storage.from('library').getPublicUrl(filePath);
+                
+                // Gravar na DB
+                const bookData = {
+                    title: e.target.title.value,
+                    author: e.target.author.value,
+                    genre: e.target.genre.value,
+                    cover_url: cUrl.publicUrl,
+                    file_url: fUrl.publicUrl,
+                    is_featured: e.target.featured.checked
+                };
+                
+                const { error } = await db.from('books').insert([bookData]);
+                if (error) throw error;
+                
+                alert("Obra publicada com sucesso!");
+                window.location.reload(); // Recarregar para atualizar catálogo global
+            } catch (err) {
+                alert(err.message);
+                btn.disabled = false;
+                btn.innerText = "Publicar";
+            }
+        };
+
+        window.handleDeleteBook = async (id) => {
+            if (!confirm("Confirmar remoção permanente desta obra?")) return;
+            const { error } = await db.from('books').delete().eq('id', id);
+            if (error) alert("Erro ao apagar.");
+            else window.location.reload();
+        };
+
+        window.handleDeleteMessage = async (id) => {
+            if (!confirm("Apagar mensagem?")) return;
+            await db.from('messages').delete().eq('id', id);
+            renderAdminMessages();
+        };
+
+        // --- LEITOR DE LIVROS ---
+
         window.openReader = (id) => {
-            const book = state.books.find(b => b.id === id);
-            state.activeReader = book;
-            state.readerPage = 0;
+            const book = ALL_BOOKS.find(b => b.id === id);
+            if (!book) return;
+
+            // Adicionar ao Histórico
+            HISTORY = [book, ...HISTORY.filter(b => b.id !== id)].slice(0, 5);
+            localStorage.setItem('reading_history', JSON.stringify(HISTORY));
+
+            const modal = document.getElementById('reader-modal');
+            const meta = document.getElementById('reader-meta');
+            const container = document.getElementById('reader-container');
             
-            document.getElementById('reader-modal').classList.remove('hidden');
-            document.getElementById('reader-title').innerText = book.title;
-            document.getElementById('reader-author').innerText = book.author;
-            document.getElementById('reader-cover').src = book.coverUrl;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
             
-            switchReaderTab('read');
-            renderReaderContent();
-            renderComments();
+            meta.innerHTML = `
+                <img src="${book.cover_url}" class="w-8 h-12 object-cover rounded shadow-md">
+                <div>
+                    <h2 class="font-black text-black leading-none">${book.title}</h2>
+                    <p class="text-[9px] text-teal-600 font-black uppercase mt-1 tracking-widest">${book.author}</p>
+                </div>
+            `;
+
+            const isEPUB = book.file_url.toLowerCase().includes('.epub');
+            
+            if (isEPUB) {
+                container.innerHTML = `
+                    <div id="epub-viewer"></div>
+                    <div class="absolute bottom-8 left-0 right-0 flex justify-center gap-6 z-20">
+                        <button onclick="epubRendition.prev()" class="bg-white p-5 rounded-full shadow-2xl text-teal-600 hover:scale-110 active:scale-95 transition-all">
+                            <i class="fa-solid fa-chevron-left text-xl"></i>
+                        </button>
+                        <button onclick="epubRendition.next()" class="bg-white p-5 rounded-full shadow-2xl text-teal-600 hover:scale-110 active:scale-95 transition-all">
+                            <i class="fa-solid fa-chevron-right text-xl"></i>
+                        </button>
+                    </div>
+                `;
+                const epub = ePub(book.file_url);
+                epubRendition = epub.renderTo("epub-viewer", {
+                    width: "100%", height: "100%", flow: "scrolled", manager: "continuous"
+                });
+                epubRendition.display();
+            } else {
+                container.innerHTML = `<iframe src="${book.file_url}" class="w-full h-full border-none"></iframe>`;
+            }
         };
 
         window.closeReader = () => {
-            document.getElementById('reader-modal').classList.add('hidden');
-            state.activeReader = null;
-        };
-
-        window.switchReaderTab = (tab) => {
-            document.getElementById('reader-content-area').querySelectorAll(':scope > div').forEach(d => d.classList.add('hidden'));
-            document.getElementById('tab-read').classList.remove('bg-white', 'text-teal-600', 'shadow-md');
-            document.getElementById('tab-comments').classList.remove('bg-white', 'text-teal-600', 'shadow-md');
-            
-            if(tab === 'read') {
-                document.getElementById('tab-read').classList.add('bg-white', 'text-teal-600', 'shadow-md');
-                renderReaderContent();
-            } else {
-                document.getElementById('tab-comments').classList.add('bg-white', 'text-teal-600', 'shadow-md');
-                document.getElementById('reader-comments-view').classList.remove('hidden');
+            const modal = document.getElementById('reader-modal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('reader-container').innerHTML = '';
+            if (epubRendition) {
+                epubRendition.destroy();
+                epubRendition = null;
             }
         };
 
-        function renderReaderContent() {
-            const book = state.activeReader;
-            document.getElementById('reader-pdf-view').classList.add('hidden');
-            document.getElementById('reader-epub-view').classList.add('hidden');
-            document.getElementById('reader-book-view').classList.add('hidden');
-
-            const isPDF = book.fileUrl?.includes('pdf') || book.fileUrl?.startsWith('data:application/pdf');
-            const isEPUB = book.fileUrl?.includes('epub');
-
-            if (isPDF) {
-                document.getElementById('reader-pdf-view').classList.remove('hidden');
-                document.getElementById('pdf-frame').src = book.fileUrl;
-            } else if (isEPUB) {
-                document.getElementById('reader-epub-view').classList.remove('hidden');
-                document.getElementById('epub-download-link').href = book.fileUrl;
-            } else {
-                document.getElementById('reader-book-view').classList.remove('hidden');
-                updateBookPages();
-            }
-        }
-
-        const getBookPages = () => {
-            const desc = state.activeReader.description || "Digitalização em progresso...";
-            const paragraphs = desc.split('\n').filter(p => p.trim() !== "");
-            return ["Prólogo: " + state.activeReader.title, ...paragraphs, "Fim da visualização gratuita."];
-        };
-
-        window.updateBookPages = () => {
-            const pages = getBookPages();
-            const isMobile = window.innerWidth < 1024;
-            const idx = state.readerPage;
-            
-            document.getElementById('page-left-book-title').innerText = state.activeReader.title;
-            document.getElementById('page-left-num').innerText = isMobile ? idx + 1 : idx * 2 + 1;
-            document.getElementById('page-left-content').innerText = isMobile ? pages[idx] : pages[idx * 2];
-            
-            if (!isMobile) {
-                const rightIdx = idx * 2 + 1;
-                document.getElementById('page-right-num').innerText = rightIdx + 1;
-                document.getElementById('page-right-book-author').innerText = state.activeReader.author;
-                document.getElementById('page-right-content').innerText = pages[rightIdx] || "";
-            }
-
-            document.getElementById('page-indicator').innerText = isMobile ? `Pág. ${idx + 1}` : `Folha ${idx + 1}`;
-        };
-
-        window.nextPage = () => {
-            const pages = getBookPages();
-            const isMobile = window.innerWidth < 1024;
-            const max = isMobile ? pages.length - 1 : Math.ceil(pages.length / 2) - 1;
-            if(state.readerPage < max) {
-                state.readerPage++;
-                updateBookPages();
-            }
-        };
-
-        window.prevPage = () => {
-            if(state.readerPage > 0) {
-                state.readerPage--;
-                updateBookPages();
-            }
-        };
-
-        // --- Comentários ---
-        function renderComments() {
-            const list = document.getElementById('comments-list');
-            const bookComments = state.comments.filter(c => c.bookId === state.activeReader.id);
-            list.innerHTML = bookComments.length ? bookComments.map(c => `
-                <div class="bg-gray-50 p-8 rounded-[2rem] border border-gray-100">
-                    <div class="flex justify-between mb-4">
-                        <span class="font-black text-gray-900">${c.userName}</span>
-                        <span class="text-[10px] text-gray-400 font-black uppercase tracking-widest">${c.date}</span>
-                    </div>
-                    <p class="text-gray-600 font-medium leading-relaxed">${c.text}</p>
-                </div>
-            `).join('') : `<div class="text-center py-10 text-gray-400">Nenhum comentário ainda.</div>`;
-        }
-
-        window.handlePostComment = (e) => {
-            e.preventDefault();
-            const newC = {
-                id: Date.now().toString(),
-                bookId: state.activeReader.id,
-                userName: document.getElementById('comment-user').value,
-                text: document.getElementById('comment-text').value,
-                date: new Date().toLocaleDateString('pt-MZ')
-            };
-            state.comments.push(newC);
-            localStorage.setItem('mbo_comments', JSON.stringify(state.comments));
-            renderComments();
-            e.target.reset();
-        };
-
-        // --- IA Gemini ---
-        window.aiGenerateDescription = async () => {
-            const title = document.getElementById('book-title').value;
-            const author = document.getElementById('book-author').value;
-            if(!title) return alert('Introduza o título primeiro.');
-            
-            const btn = event.target;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> A criar...';
-            
-            try {
-                const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-                const response = await ai.models.generateContent({
-                    model: 'gemini-3-flash-preview',
-                    contents: `Escreva uma sinopse literária envolvente para um livro moçambicano chamado "${title}" do autor "${author}". Use 3 parágrafos.`
-                });
-                document.getElementById('book-desc').value = response.text;
-            } catch (err) {
-                console.error(err);
-                alert('Erro na conexão com IA.');
-            } finally {
-                btn.innerHTML = originalText;
-            }
-        };
-
-        // --- Inicialização ---
-        renderNav();
-        renderHome();
-        
-        // Listener de Resize para o Leitor
-        window.addEventListener('resize', () => {
-            if(state.activeReader) updateBookPages();
-        });
+        // Iniciar App
+        init();
 
     </script>
 </body>

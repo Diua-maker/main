@@ -1,864 +1,806 @@
 <!DOCTYPE html>
-<html lang="pt-MZ">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minha Biblioteca On - Moçambique Digital</title>
-    
-    <!-- Tailwind CSS para Estilização -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome para Ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-    
-    <!-- Bibliotecas de Terceiros -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#121212">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Painel de Vida Digital</title>
     <style>
-        :root { --teal: #0d9488; }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #f8fafc; 
-            color: #1a1a1a; 
-            margin: 0;
-            overflow-x: hidden;
+        :root {
+            --bg-color: #121212;
+            --card-bg: #18181b; /* zinc-900 */
+            --card-border: #27272a; /* zinc-800 */
+            --text-primary: #e4e4e7; /* zinc-200 */
+            --text-secondary: #a1a1aa; /* zinc-400 */
+            --accent-blue: #3b82f6;
+            --accent-red: #ef4444;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --nav-bg: #1a1a1a;
+            --font-sans: system-ui, -apple-system, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            min-h: 100vh;
+            overflow: hidden;
         }
 
-        /* Animações Modernas */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        /* Utilities */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
+        .justify-around { justify-content: space-around; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mt-4 { margin-top: 1rem; }
+        .text-center { text-align: center; }
+        .w-full { width: 100%; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .rounded-2xl { border-radius: 1rem; }
+        .rounded-full { border-radius: 9999px; }
+        .font-bold { font-weight: 700; }
+        .text-sm { font-size: 0.875rem; }
+        .text-xs { font-size: 0.75rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
         
-        /* Botões Estilizados */
-        .btn-primary { 
-            @apply bg-teal-600 text-white font-black py-3 px-8 rounded-xl transition-all duration-300 shadow-lg active:scale-95 flex items-center justify-center gap-2 uppercase text-[10px] tracking-widest hover:bg-teal-700 hover:-translate-y-0.5; 
+        /* Components */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
         }
+
+        .btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn:active { transform: scale(0.98); background-color: var(--card-border); }
+        .btn-primary { background-color: var(--accent-blue); border-color: var(--accent-blue); color: white; }
+        .btn-danger { background-color: rgba(239, 68, 68, 0.1); color: var(--accent-red); border-color: rgba(239, 68, 68, 0.2); }
         
-        /* Inputs com Contraste Corrigido */
-        .input-field { 
-            @apply w-full px-6 py-4 rounded-xl border-2 border-gray-300 bg-white text-black font-bold outline-none focus:border-teal-600 focus:ring-4 focus:ring-teal-500/10 transition-all placeholder:text-gray-400; 
+        .input-group { margin-bottom: 1rem; }
+        .input-label { display: block; color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.25rem; }
+        .input-field {
+            width: 100%;
+            background-color: #27272a;
+            border: 1px solid #3f3f46;
+            color: white;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+        .input-field:focus { outline: 2px solid var(--accent-blue); border-color: transparent; }
+
+        /* Navigation */
+        #app-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.25rem;
+            padding-bottom: 6rem; /* Space for nav */
         }
 
-        /* Menu Mobile */
-        .mobile-menu-overlay {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.95)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80');
-            background-size: cover;
-            background-position: center;
+        #bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--nav-bg);
+            border-top: 1px solid var(--card-border);
+            height: 4rem;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 50;
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* Leitor de EPUB */
-        #epub-viewer { width: 100%; height: 100%; background: white; }
-        .epub-container { position: relative; width: 100%; height: 100%; overflow: hidden; }
-
-        /* Esconder scrollbars */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Loader */
-        #main-loader {
-            position: fixed; inset: 0; background: white; z-index: 9999;
-            display: flex; align-items: center; justify-content: center;
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            width: 100%;
+            height: 100%;
+            gap: 0.25rem;
         }
-        .pulse { animation: pulseAnim 2s infinite; }
-        @keyframes pulseAnim { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.9); opacity: 0.7; } }
+        .nav-item.active { color: var(--accent-blue); }
+        .nav-icon { width: 24px; height: 24px; }
+        .nav-label { font-size: 0.65rem; font-weight: 500; }
+
+        /* Progress Bar */
+        .progress-bg { background-color: #27272a; height: 0.5rem; border-radius: 9999px; overflow: hidden; }
+        .progress-fill { height: 100%; transition: width 0.5s ease; }
+
+        /* Activity Grid */
+        .activity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .activity-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 0.75rem;
+            gap: 0.75rem;
+        }
+        .activity-icon {
+            width: 3rem; height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        /* Canvas */
+        canvas { width: 100%; height: auto; }
+
+        /* Animations */
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0",
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.91.0",
-    "react/": "https://esm.sh/react@^19.2.3/"
-  }
-}
-</script>
 </head>
 <body>
 
-    <!-- Carregador Inicial -->
-    <div id="main-loader">
-        <div class="flex flex-col items-center">
-            <div class="w-16 h-16 bg-teal-600 rounded-2xl pulse shadow-2xl flex items-center justify-center text-white text-3xl font-black">M</div>
-            <p class="mt-6 text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Minha Biblioteca On</p>
-        </div>
+    <div id="app-content">
+        <!-- Views will be injected here -->
     </div>
 
-    <!-- Navegação Superior -->
-    <nav class="bg-white border-b border-gray-100 sticky top-0 z-[100] shadow-sm h-20">
-        <div class="max-w-7xl mx-auto px-6 h-full flex justify-between items-center">
-            <a href="javascript:void(0)" onclick="navigateTo('home')" class="flex items-center gap-3 group">
-                <div class="w-10 h-10 bg-teal-600 rounded-lg flex items-center justify-center text-white text-xl font-black shadow-lg">M</div>
-                <div class="hidden sm:block leading-none">
-                    <h1 class="text-lg font-black text-gray-900 uppercase tracking-tight">Minha Biblioteca On</h1>
-                    <p class="text-[9px] text-teal-600 font-bold uppercase tracking-[0.2em]">Moçambique Digital</p>
-                </div>
-            </a>
-
-            <div class="hidden md:flex items-center gap-8">
-                <div class="flex gap-8">
-                    <a href="javascript:void(0)" onclick="navigateTo('home')" class="text-sm font-black text-gray-500 hover:text-teal-600">Início</a>
-                    <a href="javascript:void(0)" onclick="navigateTo('catalog')" class="text-sm font-black text-gray-500 hover:text-teal-600">Catálogo</a>
-                    <a href="javascript:void(0)" onclick="navigateTo('support')" class="text-sm font-black text-gray-500 hover:text-teal-600">Suporte</a>
-                </div>
-                <div class="w-px h-6 bg-gray-200"></div>
-                <div id="nav-auth-area" class="flex items-center gap-6">
-                    <!-- Gerado por JS -->
-                </div>
-                <a href="javascript:void(0)" onclick="navigateTo('admin')" class="bg-gray-900 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-teal-600 transition-all flex items-center gap-2">
-                    <i class="fa-solid fa-sliders"></i> Gestão
-                </a>
-            </div>
-
-            <button onclick="toggleMobileMenu(true)" class="md:hidden p-3 text-gray-900">
-                <i class="fa-solid fa-bars text-2xl"></i>
-            </button>
-        </div>
+    <nav id="bottom-nav">
+        <button class="nav-item active" onclick="router.navigate('dashboard')">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span class="nav-label">Início</span>
+        </button>
+        <button class="nav-item" onclick="router.navigate('timer')">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span class="nav-label">Tempo</span>
+        </button>
+        <button class="nav-item" onclick="router.navigate('data')">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+            <span class="nav-label">Dados</span>
+        </button>
+        <button class="nav-item" onclick="router.navigate('goals')">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+            <span class="nav-label">Metas</span>
+        </button>
+        <button class="nav-item" onclick="router.navigate('reports')">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <span class="nav-label">Relat.</span>
+        </button>
     </nav>
 
-    <!-- Menu Mobile Overlay -->
-    <div id="mobile-menu" class="fixed inset-0 z-[105] mobile-menu-overlay transition-all duration-500 translate-x-full opacity-0 pointer-events-none">
-        <div class="relative flex flex-col h-full px-10 pt-32 gap-8">
-            <button onclick="toggleMobileMenu(false)" class="absolute top-6 right-6 text-white text-4xl">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <div class="flex flex-col gap-8">
-                <a href="javascript:void(0)" onclick="navigateTo('home'); toggleMobileMenu(false)" class="text-5xl font-black text-white hover:text-teal-400 transition-colors">1. Início</a>
-                <a href="javascript:void(0)" onclick="navigateTo('catalog'); toggleMobileMenu(false)" class="text-5xl font-black text-white hover:text-teal-400 transition-colors">2. Catálogo</a>
-                <a href="javascript:void(0)" onclick="navigateTo('support'); toggleMobileMenu(false)" class="text-5xl font-black text-white hover:text-teal-400 transition-colors">3. Suporte</a>
-                <div id="mobile-auth-area" class="flex flex-col gap-8">
-                    <!-- Gerado por JS -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Conteúdo Principal Dinâmico -->
-    <main id="app-content" class="flex-grow">
-        <!-- Vistas carregadas aqui -->
-    </main>
-
-    <!-- Rodapé -->
-    <footer class="bg-gray-900 text-gray-400 py-16 px-6 border-t border-white/5 mt-auto">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div>
-                <h4 class="text-white font-black text-xl mb-4">Minha Biblioteca On</h4>
-                <p class="text-xs uppercase tracking-widest leading-loose">Democratizando a leitura em Moçambique.</p>
-                <div class="flex gap-4 mt-6">
-                    <a href="#" class="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center hover:bg-teal-600 transition-all"><i class="fa-brands fa-facebook-f text-white"></i></a>
-                    <a href="https://wa.me/258858799196" target="_blank" class="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center hover:bg-green-600 transition-all"><i class="fa-brands fa-whatsapp text-white"></i></a>
-                </div>
-            </div>
-            <div>
-                <h4 class="text-white font-black text-sm uppercase mb-6 tracking-widest">Contacto Directo</h4>
-                <div class="space-y-4">
-                    <p class="flex items-center gap-3 text-white font-bold"><i class="fa-solid fa-envelope text-teal-600"></i> martabitoneb@gmail.com</p>
-                    <p class="flex items-center gap-3 text-white font-bold"><i class="fa-solid fa-phone text-teal-600"></i> +258 858799196</p>
-                </div>
-            </div>
-            <div>
-                <h4 class="text-white font-black text-sm uppercase mb-6 tracking-widest">Slogan</h4>
-                <p class="text-xl font-black text-teal-500 italic">"Moçambique digital em suas mãos"</p>
-            </div>
-        </div>
-        <div class="mt-16 text-center text-[9px] font-black uppercase tracking-[0.5em] opacity-30">
-            © 2024 Biblioteca On Moçambique. Todos os direitos reservados.
-        </div>
-    </footer>
-
-    <!-- Modais -->
-    <div id="reader-modal" class="fixed inset-0 z-[150] bg-black/98 flex items-center justify-center md:p-10 hidden">
-        <div class="bg-white w-full max-w-7xl h-full flex flex-col md:rounded-[3rem] overflow-hidden shadow-2xl relative">
-            <div class="p-6 border-b flex justify-between items-center bg-gray-50">
-                <div id="reader-meta" class="flex items-center gap-4">
-                    <!-- Info do livro -->
-                </div>
-                <button onclick="closeReader()" class="w-12 h-12 rounded-full hover:bg-red-50 hover:text-red-500 transition-all flex items-center justify-center">
-                    <i class="fa-solid fa-xmark text-2xl"></i>
-                </button>
-            </div>
-            <div id="reader-container" class="flex-grow bg-gray-900 overflow-hidden relative">
-                <!-- Iframe ou Reader EPUB -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Lógica da Aplicação -->
     <script>
-        // --- CONSTANTES ---
-        const SUPABASE_URL = 'https://mxhilwupxdwzxefntamq.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14aGlsd3VweGR3enhlZm50YW1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1NDkxMjQsImV4cCI6MjA4NDEyNTEyNH0.qHtknvb43piZgBjcX7_MFLiV8FjbnubglYv0p4P2dGc';
-        const { createClient } = supabase;
-        const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        const GENRES = ['Educação', 'Romance', 'Ficção', 'História', 'Ciência', 'Biografia', 'Tecnologia'];
-        let ALL_BOOKS = [];
-        let CURRENT_USER = null;
-        let HISTORY = JSON.parse(localStorage.getItem('reading_history') || '[]');
-        let epubRendition = null;
-
-        // --- INICIALIZAÇÃO ---
-        async function init() {
-            try {
-                // Verificar Sessão
-                const { data: { session } } = await db.auth.getSession();
-                CURRENT_USER = session?.user || null;
-                updateAuthUI();
-
-                // Carregar Livros
-                const { data, error } = await db.from('books').select('*').order('date_added', { ascending: false });
-                if (error) throw error;
-                ALL_BOOKS = data || [];
-
-                // Router Inicial
-                navigateTo('home');
-                
-                // Esconder Loader
-                document.getElementById('main-loader').style.display = 'none';
-            } catch (err) {
-                console.error("Erro na inicialização:", err);
-                document.getElementById('main-loader').innerHTML = `<div class="p-10 text-center"><h2 class="text-2xl font-black text-red-600">Erro Fatal</h2><p class="mt-4 text-gray-500">Falha ao ligar ao servidor. Verifique a sua internet.</p></div>`;
-            }
-        }
-
-        // --- UI GERAL ---
-        function updateAuthUI() {
-            const nav = document.getElementById('nav-auth-area');
-            const mobile = document.getElementById('mobile-auth-area');
-            
-            if (CURRENT_USER) {
-                const username = CURRENT_USER.user_metadata?.username || CURRENT_USER.email.split('@')[0];
-                const html = `
-                    <button onclick="navigateTo('profile')" class="flex items-center gap-2 text-sm font-black text-gray-900 hover:text-teal-600">
-                        <i class="fa-solid fa-circle-user text-xl text-teal-600"></i>
-                        <span>${username}</span>
-                    </button>
-                    <button onclick="handleLogout()" class="text-[9px] font-black uppercase text-gray-400 hover:text-red-600">Sair</button>
-                `;
-                nav.innerHTML = html;
-                mobile.innerHTML = `
-                    <a href="javascript:void(0)" onclick="navigateTo('profile'); toggleMobileMenu(false)" class="text-5xl font-black text-teal-400">4. Perfil</a>
-                    <a href="javascript:void(0)" onclick="handleLogout(); toggleMobileMenu(false)" class="text-2xl font-black text-white/50">Terminar Sessão</a>
-                `;
-            } else {
-                nav.innerHTML = `
-                    <button onclick="navigateTo('login')" class="text-sm font-black text-gray-500 hover:text-teal-600">Login</button>
-                    <button onclick="navigateTo('register')" class="btn-primary py-2 px-5">Criar Conta</button>
-                `;
-                mobile.innerHTML = `<a href="javascript:void(0)" onclick="navigateTo('login'); toggleMobileMenu(false)" class="text-5xl font-black text-white">4. Login</a>`;
-            }
-        }
-
-        function toggleMobileMenu(open) {
-            const menu = document.getElementById('mobile-menu');
-            if (open) {
-                menu.classList.remove('translate-x-full', 'opacity-0', 'pointer-events-none');
-                menu.classList.add('translate-x-0', 'opacity-100');
-                document.body.style.overflow = 'hidden';
-            } else {
-                menu.classList.add('translate-x-full', 'opacity-0', 'pointer-events-none');
-                menu.classList.remove('translate-x-0', 'opacity-100');
-                document.body.style.overflow = 'auto';
-            }
-        }
-
-        // --- SISTEMA DE NAVEGAÇÃO ---
-        function navigateTo(page) {
-            const content = document.getElementById('app-content');
-            content.innerHTML = '';
-            window.scrollTo(0,0);
-            
-            switch(page) {
-                case 'home': renderHome(); break;
-                case 'catalog': renderCatalog(); break;
-                case 'support': renderSupport(); break;
-                case 'login': renderLogin(); break;
-                case 'register': renderRegister(); break;
-                case 'profile': renderProfile(); break;
-                case 'admin': renderAdminAuth(); break;
-                default: renderHome();
-            }
-        }
-
-        // --- VISTAS ---
-
-        function renderHome() {
-            const featured = ALL_BOOKS.filter(b => b.is_featured).slice(0, 4);
-            const container = document.getElementById('app-content');
-            
-            container.innerHTML = `
-                <div class="animate-fade-in">
-                    <section class="bg-gray-900 relative h-[600px] flex items-center px-6 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover opacity-30">
-                        <div class="max-w-7xl mx-auto w-full relative z-10">
-                            <div class="max-w-2xl">
-                                <span class="bg-teal-600 text-white px-4 py-1 rounded text-[10px] font-black uppercase tracking-[0.3em] mb-6 inline-block">Moçambique Digital</span>
-                                <h1 class="text-5xl md:text-7xl font-black text-white leading-tight mb-8">Moçambique digital em suas mãos.</h1>
-                                <button onclick="navigateTo('catalog')" class="btn-primary py-5 px-10 text-lg">Aceder ao Catálogo</button>
-                            </div>
-                        </div>
-                    </section>
-
-                    ${HISTORY.length > 0 ? `
-                        <section class="py-16 bg-teal-50 border-b border-teal-100">
-                            <div class="max-w-7xl mx-auto px-6">
-                                <h2 class="text-[10px] font-black text-teal-600 uppercase tracking-widest mb-8">Continuar a ler</h2>
-                                <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
-                                    ${HISTORY.map(book => `
-                                        <div onclick="openReader('${book.id}')" class="cursor-pointer group">
-                                            <div class="aspect-[2/3] rounded-lg overflow-hidden shadow-md bg-white mb-2">
-                                                <img src="${book.cover_url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
-                                            </div>
-                                            <p class="text-[10px] font-black text-black truncate">${book.title}</p>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        </section>
-                    ` : ''}
-
-                    <section class="py-24 px-6 bg-white">
-                        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center">
-                            <div>
-                                <h2 class="text-4xl font-black mb-8 leading-tight">Quem Somos?</h2>
-                                <p class="text-xl text-gray-600 font-bold mb-6">A Biblioteca On é a maior rede digital dedicada à educação e cultura em Moçambique.</p>
-                                <p class="text-gray-500 font-medium leading-relaxed">Iniciamos esta jornada para derrubar barreiras geográficas. Acreditamos que cada moçambicano deve ter acesso livre ao conhecimento, de Maputo ao Rovuma.</p>
-                            </div>
-                            <div class="relative">
-                                <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&q=80" class="rounded-[3rem] shadow-2xl relative z-10">
-                                <div class="absolute -bottom-6 -right-6 w-full h-full bg-teal-100 rounded-[3rem] -z-0"></div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="py-24 px-6 bg-gray-50">
-                        <div class="max-w-7xl mx-auto">
-                            <div class="flex justify-between items-end mb-12">
-                                <h2 class="text-3xl font-black">Obras em Destaque</h2>
-                                <button onclick="navigateTo('catalog')" class="text-xs font-black text-teal-600 uppercase tracking-widest border-b-2 border-teal-600 pb-1">Ver tudo</button>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                                ${featured.map(book => createBookCard(book)).join('')}
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            `;
-        }
-
-        function createBookCard(book) {
-            return `
-                <div class="group bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
-                    <div class="relative aspect-[2/3] overflow-hidden bg-gray-100">
-                        <img src="${book.cover_url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                        <div class="absolute top-3 left-3">
-                            <span class="bg-white/95 text-teal-700 text-[9px] font-black px-2 py-1 rounded uppercase shadow-sm">${book.genre}</span>
-                        </div>
-                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300">
-                            <button onclick="openReader('${book.id}')" class="w-14 h-14 bg-white text-teal-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-90 transition-all">
-                                <i class="fa-solid fa-book-open text-2xl"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-black text-black line-clamp-2 min-h-[3rem] leading-tight">${book.title}</h3>
-                        <p class="text-gray-400 text-xs font-bold mt-2 uppercase tracking-wide">${book.author}</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderCatalog() {
-            const container = document.getElementById('app-content');
-            container.innerHTML = `
-                <div class="max-w-7xl mx-auto px-6 py-12 animate-fade-in">
-                    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-                        <div>
-                            <h1 class="text-4xl font-black text-black">Catálogo Completo</h1>
-                            <p class="text-gray-500 mt-2 font-medium">Explore o nosso acervo digital crescente.</p>
-                        </div>
-                        <div class="w-full md:w-96 relative">
-                            <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                            <input id="search-input" oninput="handleSearch(this.value)" class="input-field pl-14" placeholder="Pesquisar título ou autor...">
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-3 overflow-x-auto pb-8 mb-10 no-scrollbar items-center border-b">
-                        <button onclick="filterByGenre('Todos')" class="genre-pill active bg-teal-600 text-white font-black px-6 py-2 rounded-full text-xs uppercase border-2 border-teal-600">Todos</button>
-                        ${GENRES.map(g => `<button onclick="filterByGenre('${g}')" class="genre-pill bg-white text-gray-400 font-black px-6 py-2 rounded-full text-xs uppercase border-2 border-gray-100 hover:border-teal-600 hover:text-teal-600 transition-all">${g}</button>`).join('')}
-                    </div>
-
-                    <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        ${ALL_BOOKS.map(book => createBookCard(book)).join('')}
-                    </div>
-
-                    ${ALL_BOOKS.length === 0 ? `<div class="p-24 text-center text-gray-300 font-black italic">O catálogo está vazio de momento.</div>` : ''}
-                </div>
-            `;
-        }
-
-        window.handleSearch = (query) => {
-            const grid = document.getElementById('catalog-grid');
-            const filtered = ALL_BOOKS.filter(b => 
-                b.title.toLowerCase().includes(query.toLowerCase()) || 
-                b.author.toLowerCase().includes(query.toLowerCase())
-            );
-            grid.innerHTML = filtered.map(book => createBookCard(book)).join('');
+        // --- STATE MANAGEMENT ---
+        const STORAGE_KEY = 'painel_vida_digital_v1';
+        
+        const INITIAL_STATE = {
+            sessions: [],
+            currentSessionId: null,
+            dataPlan: {
+                totalDataGB: 0,
+                cost: 0,
+                purchaseDate: new Date().toISOString(),
+                manualConsumedMB: 0,
+                useEstimation: true,
+                estimatedMBPerHour: 150,
+            },
+            goals: {
+                maxSocialMediaMinutes: 120,
+                minStudyMinutes: 180,
+                maxMonthlyBudget: 1000,
+            },
+            userLevel: 1,
+            streak: 0,
+            lastActiveDate: new Date().toISOString().split('T')[0],
         };
 
-        window.filterByGenre = (genre) => {
-            // Atualizar UI dos botões
-            document.querySelectorAll('.genre-pill').forEach(btn => {
-                if (btn.innerText.toUpperCase() === genre.toUpperCase() || (genre === 'Todos' && btn.innerText === 'TODOS')) {
-                    btn.className = 'genre-pill bg-teal-600 text-white font-black px-6 py-2 rounded-full text-xs uppercase border-2 border-teal-600';
-                } else {
-                    btn.className = 'genre-pill bg-white text-gray-400 font-black px-6 py-2 rounded-full text-xs uppercase border-2 border-gray-100 hover:border-teal-600 hover:text-teal-600 transition-all';
+        const ACTIVITY_CONFIG = {
+            study: { label: 'Estudo', color: '#3b82f6', icon: '📖', isProductive: true },
+            social: { label: 'Redes Sociais', color: '#ef4444', icon: '📱', isProductive: false },
+            leisure: { label: 'Lazer', color: '#10b981', icon: '🎮', isProductive: false },
+            sleep: { label: 'Dormir', color: '#8b5cf6', icon: '😴', isProductive: true },
+            exercise: { label: 'Exercício', color: '#f59e0b', icon: '🏃', isProductive: true },
+        };
+
+        class Store {
+            constructor() {
+                this.state = this.load();
+                this.listeners = [];
+                this.checkStreak();
+            }
+
+            load() {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                return stored ? { ...INITIAL_STATE, ...JSON.parse(stored) } : INITIAL_STATE;
+            }
+
+            save() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+                this.notify();
+            }
+
+            subscribe(listener) {
+                this.listeners.push(listener);
+            }
+
+            notify() {
+                this.listeners.forEach(l => l(this.state));
+            }
+
+            update(fn) {
+                const updates = fn(this.state);
+                this.state = { ...this.state, ...updates };
+                this.save();
+            }
+
+            checkStreak() {
+                const today = new Date().toISOString().split('T')[0];
+                if (this.state.lastActiveDate !== today) {
+                    this.update(prev => ({
+                        lastActiveDate: today,
+                        streak: prev.streak + 1
+                    }));
+                }
+            }
+
+            reset() {
+                if(confirm('Tem certeza que deseja apagar todos os dados?')) {
+                    this.state = INITIAL_STATE;
+                    this.save();
+                    window.location.reload();
+                }
+            }
+
+            export() {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.state));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "backup_vida_digital.json");
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+            }
+        }
+
+        const store = new Store();
+
+        // --- ROUTER ---
+        const router = {
+            currentView: 'dashboard',
+            navigate(view) {
+                this.currentView = view;
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                document.querySelector(`.nav-item[onclick="router.navigate('${view}')"]`).classList.add('active');
+                render();
+            }
+        };
+
+        // --- HELPERS ---
+        const formatTime = (seconds) => {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        };
+
+        const formatHoursShort = (seconds) => {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            return `${h}h ${m}m`;
+        };
+
+        // --- VIEWS ---
+        
+        function renderDashboard() {
+            const state = store.state;
+            const today = new Date().toISOString().split('T')[0];
+            const todaySessions = state.sessions.filter(s => s.date === today);
+
+            // Calculate durations including current active session
+            const getDuration = (type) => {
+                return todaySessions
+                    .filter(s => s.type === type)
+                    .reduce((acc, s) => {
+                        let duration = s.duration;
+                        if (state.currentSessionId === s.id) {
+                            duration = Math.floor((Date.now() - s.startTime) / 1000);
+                        }
+                        return acc + duration;
+                    }, 0);
+            };
+
+            const studySeconds = getDuration('study');
+            const socialSeconds = getDuration('social');
+            
+            let totalSeconds = 0;
+            let productiveSeconds = 0;
+
+            todaySessions.forEach(s => {
+                let dur = s.duration;
+                if (state.currentSessionId === s.id) {
+                    dur = Math.floor((Date.now() - s.startTime) / 1000);
+                }
+                totalSeconds += dur;
+                if (ACTIVITY_CONFIG[s.type].isProductive) {
+                    productiveSeconds += dur;
                 }
             });
 
-            const grid = document.getElementById('catalog-grid');
-            const filtered = genre === 'Todos' ? ALL_BOOKS : ALL_BOOKS.filter(b => b.genre === genre);
-            grid.innerHTML = filtered.map(book => createBookCard(book)).join('');
-        };
+            const productivity = totalSeconds > 0 ? Math.round((productiveSeconds / totalSeconds) * 100) : 0;
 
-        function renderSupport() {
-            const container = document.getElementById('app-content');
-            container.innerHTML = `
-                <div class="max-w-7xl mx-auto px-6 py-20 animate-fade-in grid md:grid-cols-2 gap-20">
+            // Data Estimation
+            const plan = state.dataPlan;
+            const socialHours = socialSeconds / 3600;
+            const estimatedDataUsedMB = socialHours * plan.estimatedMBPerHour;
+            const costUsed = (estimatedDataUsedMB / 1024) * (plan.totalDataGB > 0 ? plan.cost / plan.totalDataGB : 0);
+
+            return `
+                <header class="flex justify-between items-center mb-4">
                     <div>
-                        <h1 class="text-5xl font-black mb-8 leading-tight">Canal de Apoio <br/> e Sugestões.</h1>
-                        <p class="text-xl text-gray-600 font-bold mb-12 italic">Fale connosco. A sua voz constrói esta biblioteca.</p>
-                        
-                        <div class="space-y-10">
-                            <div class="flex items-center gap-6">
-                                <div class="w-16 h-16 bg-green-50 text-green-500 rounded-3xl flex items-center justify-center text-3xl shadow-sm"><i class="fa-brands fa-whatsapp"></i></div>
-                                <div><p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">WhatsApp Directo</p><p class="text-2xl font-black text-black">858799196</p></div>
-                            </div>
-                            <div class="flex items-center gap-6">
-                                <div class="w-16 h-16 bg-teal-50 text-teal-600 rounded-3xl flex items-center justify-center text-3xl shadow-sm"><i class="fa-solid fa-envelope"></i></div>
-                                <div><p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">E-mail Oficial</p><p class="text-2xl font-black text-black">martabitoneb@gmail.com</p></div>
-                            </div>
+                        <h1 class="text-2xl font-bold text-white">Olá, Estudante</h1>
+                        <p class="text-secondary text-sm">Vamos ser produtivos hoje?</p>
+                    </div>
+                    <div class="flex items-center gap-1" style="color: var(--accent-amber); background: rgba(245, 158, 11, 0.2); padding: 4px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: bold;">
+                        🏆 Nível ${state.userLevel}
+                    </div>
+                </header>
+
+                <div class="activity-grid mb-4">
+                    <div class="card" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2);">
+                        <div class="flex items-center gap-2 mb-2" style="color: var(--accent-blue);">
+                            <span class="font-bold text-xs uppercase">Estudo</span>
                         </div>
+                        <p class="text-2xl font-bold text-white">${formatHoursShort(studySeconds)}</p>
                     </div>
-                    <div class="bg-white p-12 rounded-[3rem] shadow-2xl border border-gray-100">
-                        <form id="support-form" onsubmit="handleSupportSubmit(event)" class="space-y-6">
-                            <input required name="name" class="input-field" placeholder="Seu Nome Completo">
-                            <input required name="email" type="email" class="input-field" placeholder="Seu Melhor E-mail">
-                            <textarea required name="msg" rows="4" class="input-field resize-none" placeholder="O que deseja dizer?"></textarea>
-                            <button type="submit" class="btn-primary w-full py-5 text-sm">Enviar Mensagem</button>
-                        </form>
+                    <div class="card" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2);">
+                        <div class="flex items-center gap-2 mb-2" style="color: var(--accent-red);">
+                            <span class="font-bold text-xs uppercase">Social</span>
+                        </div>
+                        <p class="text-2xl font-bold text-white">${formatHoursShort(socialSeconds)}</p>
                     </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-white">Produtividade</h3>
+                        <span class="text-2xl font-bold text-white">${productivity}%</span>
+                    </div>
+                    <div class="progress-bg">
+                        <div class="progress-fill" style="width: ${productivity}%; background: linear-gradient(to right, var(--accent-green), #14b8a6);"></div>
+                    </div>
+                    <p class="text-secondary text-xs mt-2">
+                        ${productivity > 50 ? "Ótimo trabalho! Continue assim." : "Vamos focar um pouco mais?"}
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3 class="font-bold text-white mb-2">Custo Digital Hoje</h3>
+                    <p class="text-secondary text-sm mb-1">
+                        Você gastou aprox. <span class="text-white font-bold">${estimatedDataUsedMB.toFixed(0)} MB</span> em redes sociais.
+                    </p>
+                    <p class="text-secondary text-xs">
+                        Isso custou cerca de <span style="color: var(--accent-amber); font-weight: bold;">${costUsed.toFixed(2)} MT</span> do seu pacote.
+                    </p>
                 </div>
             `;
         }
 
-        window.handleSupportSubmit = async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button');
-            const data = {
-                name: e.target.name.value,
-                email: e.target.email.value,
-                message: e.target.msg.value
-            };
+        function renderTimer() {
+            const state = store.state;
+            const currentSession = state.currentSessionId ? state.sessions.find(s => s.id === state.currentSessionId) : null;
             
-            btn.disabled = true;
-            btn.innerText = "A Enviar...";
+            let timerHtml = '';
             
-            const { error } = await db.from('messages').insert([data]);
-            
-            if (error) {
-                alert("Erro ao enviar mensagem.");
-                btn.disabled = false;
-                btn.innerText = "Enviar Mensagem";
-            } else {
-                alert("Mensagem enviada com sucesso para a gestão!");
-                e.target.reset();
-                btn.disabled = false;
-                btn.innerText = "Enviar Mensagem";
-            }
-        };
-
-        function renderLogin() {
-            document.getElementById('app-content').innerHTML = `
-                <div class="min-h-[80vh] flex items-center justify-center px-6 animate-fade-in">
-                    <div class="bg-white p-12 rounded-[3rem] shadow-2xl border border-gray-100 w-full max-w-md">
-                        <div class="text-center mb-10">
-                            <div class="w-16 h-16 bg-teal-600 rounded-2xl flex items-center justify-center text-white text-3xl font-black mx-auto mb-6">M</div>
-                            <h1 class="text-3xl font-black text-black">Iniciar Sessão</h1>
-                            <p class="text-gray-400 font-bold mt-2">Aceda à sua estante digital.</p>
-                        </div>
-                        <form onsubmit="handleLoginSubmit(event)" class="space-y-6">
-                            <input required name="email" type="email" class="input-field" placeholder="E-mail de Leitor">
-                            <input required name="pass" type="password" class="input-field" placeholder="Palavra-passe">
-                            <button type="submit" class="btn-primary w-full py-5">Entrar</button>
-                        </form>
-                        <p class="text-center mt-8 text-sm font-bold text-gray-500">Ainda não tem conta? <button onclick="navigateTo('register')" class="text-teal-600 font-black hover:underline">Registe-se aqui</button></p>
-                    </div>
-                </div>
-            `;
-        }
-
-        window.handleLoginSubmit = async (e) => {
-            e.preventDefault();
-            const email = e.target.email.value;
-            const pass = e.target.pass.value;
-            
-            const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
-            
-            if (error) {
-                alert("Dados de acesso incorretos.");
-            } else {
-                CURRENT_USER = data.user;
-                updateAuthUI();
-                navigateTo('home');
-            }
-        };
-
-        function renderRegister() {
-            document.getElementById('app-content').innerHTML = `
-                <div class="min-h-[80vh] flex items-center justify-center px-6 animate-fade-in">
-                    <div class="bg-white p-12 rounded-[3rem] shadow-2xl border border-gray-100 w-full max-w-md">
-                        <div class="text-center mb-10">
-                            <h1 class="text-3xl font-black text-black">Criar Conta</h1>
-                            <p class="text-gray-400 font-bold mt-2">Junte-se à comunidade literária.</p>
-                        </div>
-                        <form onsubmit="handleRegisterSubmit(event)" class="space-y-6">
-                            <input required name="user" class="input-field" placeholder="Nome de Utilizador">
-                            <input required name="email" type="email" class="input-field" placeholder="E-mail">
-                            <input required name="pass" type="password" class="input-field" placeholder="Palavra-passe (Min. 6)">
-                            <button type="submit" class="btn-primary w-full py-5">Registrar</button>
-                        </form>
-                    </div>
-                </div>
-            `;
-        }
-
-        window.handleRegisterSubmit = async (e) => {
-            e.preventDefault();
-            const username = e.target.user.value;
-            const email = e.target.email.value;
-            const pass = e.target.pass.value;
-            
-            const { data, error } = await db.auth.signUp({ 
-                email, 
-                password: pass,
-                options: { data: { username } }
-            });
-            
-            if (error) alert(error.message);
-            else {
-                alert("Conta criada! Pode iniciar sessão.");
-                navigateTo('login');
-            }
-        };
-
-        function renderProfile() {
-            if (!CURRENT_USER) return navigateTo('login');
-            const username = CURRENT_USER.user_metadata?.username || "Leitor";
-            
-            document.getElementById('app-content').innerHTML = `
-                <div class="max-w-4xl mx-auto px-6 py-20 animate-fade-in">
-                    <div class="bg-white rounded-[3rem] shadow-2xl border overflow-hidden">
-                        <div class="bg-teal-600 p-16 text-center text-white">
-                            <div class="w-24 h-24 bg-white text-teal-600 rounded-full mx-auto mb-6 flex items-center justify-center text-5xl font-black">${username[0].toUpperCase()}</div>
-                            <h2 class="text-3xl font-black uppercase tracking-widest">${username}</h2>
-                            <p class="opacity-70 font-bold mt-2">${CURRENT_USER.email}</p>
-                        </div>
-                        <div class="p-12">
-                            <h3 class="text-xl font-black mb-6">A Minha Actividade</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="p-6 bg-gray-50 rounded-2xl border">
-                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Estatuto</p>
-                                    <p class="font-bold text-black mt-1">Membro Activo</p>
-                                </div>
-                                <div class="p-6 bg-gray-50 rounded-2xl border">
-                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Obras Lidas</p>
-                                    <p class="font-bold text-black mt-1">${HISTORY.length}</p>
-                                </div>
-                            </div>
-                            <button onclick="handleLogout()" class="mt-12 w-full py-5 rounded-2xl bg-black text-white font-black hover:bg-red-600 transition-all">Terminar Sessão</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        window.handleLogout = async () => {
-            await db.auth.signOut();
-            CURRENT_USER = null;
-            updateAuthUI();
-            navigateTo('home');
-        };
-
-        // --- GESTÃO / ADMIN ---
-
-        function renderAdminAuth() {
-            document.getElementById('app-content').innerHTML = `
-                <div class="min-h-[70vh] flex items-center justify-center px-6 animate-fade-in">
-                    <div class="bg-white p-12 rounded-[2.5rem] shadow-2xl border border-gray-100 w-full max-w-sm text-center">
-                        <div class="w-16 h-16 bg-gray-900 text-white rounded-full flex items-center justify-center text-2xl mx-auto mb-6"><i class="fa-solid fa-lock"></i></div>
-                        <h2 class="text-2xl font-black mb-8">Portal Admin</h2>
-                        <form onsubmit="handleAdminPass(event)" class="space-y-4">
-                            <input name="pass" type="password" class="input-field text-center" placeholder="Senha Mestra">
-                            <button type="submit" class="btn-primary w-full">Aceder</button>
-                        </form>
-                    </div>
-                </div>
-            `;
-        }
-
-        window.handleAdminPass = (e) => {
-            e.preventDefault();
-            if (e.target.pass.value === 'raquel24bleim26') {
-                renderAdminDashboard();
-            } else {
-                alert("Senha incorrecta.");
-            }
-        };
-
-        async function renderAdminDashboard() {
-            const container = document.getElementById('app-content');
-            container.innerHTML = `
-                <div class="max-w-7xl mx-auto px-6 py-12 animate-fade-in">
-                    <div class="flex justify-between items-center mb-12 border-b pb-8">
-                        <div>
-                            <h1 class="text-4xl font-black">Painel de Gestão</h1>
-                            <p class="text-gray-500 mt-2 font-bold">Gerencie o acervo e mensagens recebidas.</p>
-                        </div>
-                        <div class="flex gap-4">
-                            <button onclick="renderAdminDashboard()" class="font-black text-sm text-teal-600 border-b-2 border-teal-600">Obras</button>
-                            <button onclick="renderAdminMessages()" class="font-black text-sm text-gray-400 hover:text-teal-600">Mensagens</button>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col lg:flex-row gap-12">
-                        <!-- Formulário de Upload -->
-                        <div class="lg:w-1/3">
-                            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border sticky top-24">
-                                <h3 class="text-xl font-black mb-6">Nova Obra</h3>
-                                <form id="upload-form" onsubmit="handleBookUpload(event)" class="space-y-4">
-                                    <input required name="title" class="input-field py-3 text-sm" placeholder="Título">
-                                    <input required name="author" class="input-field py-3 text-sm" placeholder="Autor">
-                                    <select name="genre" class="input-field py-3 text-sm">
-                                        ${GENRES.map(g => `<option value="${g}">${g}</option>`).join('')}
-                                    </select>
-                                    <div>
-                                        <label class="text-[9px] font-black uppercase text-gray-400 ml-2">Ficheiro (PDF/EPUB)</label>
-                                        <input required name="file" type="file" class="input-field py-3 text-sm mt-1">
-                                    </div>
-                                    <div>
-                                        <label class="text-[9px] font-black uppercase text-gray-400 ml-2">Capa (Imagem)</label>
-                                        <input required name="cover" type="file" accept="image/*" class="input-field py-3 text-sm mt-1">
-                                    </div>
-                                    <label class="flex items-center gap-3 font-bold text-sm cursor-pointer ml-2">
-                                        <input type="checkbox" name="featured" class="w-5 h-5 accent-teal-600"> Destacar Obra
-                                    </label>
-                                    <button type="submit" class="btn-primary w-full py-4 mt-4">Publicar</button>
-                                </form>
-                            </div>
-                        </div>
-
-                        <!-- Lista de Livros -->
-                        <div class="lg:w-2/3">
-                            <div class="bg-white rounded-3xl overflow-hidden border">
-                                <table class="w-full text-left">
-                                    <thead class="bg-gray-50 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                                        <tr>
-                                            <th class="p-6">Obra</th>
-                                            <th class="p-6 text-right">Acções</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y">
-                                        ${ALL_BOOKS.map(book => `
-                                            <tr class="hover:bg-gray-50 transition-all">
-                                                <td class="p-6 flex items-center gap-4">
-                                                    <img src="${book.cover_url}" class="w-10 h-14 object-cover rounded shadow-sm">
-                                                    <div>
-                                                        <p class="font-black text-black">${book.title}</p>
-                                                        <p class="text-xs font-bold text-gray-400">${book.author}</p>
-                                                    </div>
-                                                </td>
-                                                <td class="p-6 text-right">
-                                                    <button onclick="handleDeleteBook('${book.id}')" class="w-10 h-10 bg-red-50 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all">
-                                                        <i class="fa-solid fa-trash-can"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        async function renderAdminMessages() {
-            const { data, error } = await db.from('messages').select('*').order('created_at', { ascending: false });
-            const container = document.getElementById('app-content');
-            
-            container.innerHTML = `
-                <div class="max-w-7xl mx-auto px-6 py-12 animate-fade-in">
-                    <div class="flex justify-between items-center mb-12 border-b pb-8">
-                        <div>
-                            <h1 class="text-4xl font-black">Painel de Gestão</h1>
-                            <p class="text-gray-500 mt-2 font-bold">Gerencie o acervo e mensagens recebidas.</p>
-                        </div>
-                        <div class="flex gap-4">
-                            <button onclick="renderAdminDashboard()" class="font-black text-sm text-gray-400 hover:text-teal-600">Obras</button>
-                            <button onclick="renderAdminMessages()" class="font-black text-sm text-teal-600 border-b-2 border-teal-600">Mensagens</button>
-                        </div>
-                    </div>
-
-                    <div class="space-y-6">
-                        ${data.map(msg => `
-                            <div class="bg-white p-8 rounded-[2rem] border-2 border-gray-100 shadow-sm relative group">
-                                <button onclick="handleDeleteMessage('${msg.id}')" class="absolute top-8 right-8 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><i class="fa-solid fa-trash-can"></i></button>
-                                <div class="flex justify-between mb-4">
-                                    <div>
-                                        <h3 class="text-xl font-black text-black">${msg.name}</h3>
-                                        <p class="text-teal-600 font-bold">${msg.email}</p>
-                                    </div>
-                                    <span class="text-xs text-gray-400 font-bold">${new Date(msg.created_at).toLocaleDateString()}</span>
-                                </div>
-                                <p class="text-gray-700 font-medium leading-relaxed bg-gray-50 p-6 rounded-2xl">${msg.message}</p>
-                            </div>
-                        `).join('')}
-                        ${data.length === 0 ? `<div class="p-24 text-center text-gray-300 italic">Nenhuma mensagem recebida.</div>` : ''}
-                    </div>
-                </div>
-            `;
-        }
-
-        window.handleBookUpload = async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button');
-            const file = e.target.file.files[0];
-            const cover = e.target.cover.files[0];
-            
-            if (!file || !cover) return alert("Arquivos em falta.");
-            
-            btn.disabled = true;
-            btn.innerText = "A Carregar...";
-
-            try {
-                // Upload Capa
-                const coverPath = `covers/${Date.now()}_${cover.name}`;
-                await db.storage.from('library').upload(coverPath, cover);
-                const { data: cUrl } = db.storage.from('library').getPublicUrl(coverPath);
+            if (currentSession) {
+                const elapsed = Math.floor((Date.now() - currentSession.startTime) / 1000);
+                const config = ACTIVITY_CONFIG[currentSession.type];
                 
-                // Upload Livro
-                const filePath = `books/${Date.now()}_${file.name}`;
-                await db.storage.from('library').upload(filePath, file);
-                const { data: fUrl } = db.storage.from('library').getPublicUrl(filePath);
-                
-                // Gravar na DB
-                const bookData = {
-                    title: e.target.title.value,
-                    author: e.target.author.value,
-                    genre: e.target.genre.value,
-                    cover_url: cUrl.publicUrl,
-                    file_url: fUrl.publicUrl,
-                    is_featured: e.target.featured.checked
-                };
-                
-                const { error } = await db.from('books').insert([bookData]);
-                if (error) throw error;
-                
-                alert("Obra publicada com sucesso!");
-                window.location.reload(); // Recarregar para atualizar catálogo global
-            } catch (err) {
-                alert(err.message);
-                btn.disabled = false;
-                btn.innerText = "Publicar";
-            }
-        };
-
-        window.handleDeleteBook = async (id) => {
-            if (!confirm("Confirmar remoção permanente desta obra?")) return;
-            const { error } = await db.from('books').delete().eq('id', id);
-            if (error) alert("Erro ao apagar.");
-            else window.location.reload();
-        };
-
-        window.handleDeleteMessage = async (id) => {
-            if (!confirm("Apagar mensagem?")) return;
-            await db.from('messages').delete().eq('id', id);
-            renderAdminMessages();
-        };
-
-        // --- LEITOR DE LIVROS ---
-
-        window.openReader = (id) => {
-            const book = ALL_BOOKS.find(b => b.id === id);
-            if (!book) return;
-
-            // Adicionar ao Histórico
-            HISTORY = [book, ...HISTORY.filter(b => b.id !== id)].slice(0, 5);
-            localStorage.setItem('reading_history', JSON.stringify(HISTORY));
-
-            const modal = document.getElementById('reader-modal');
-            const meta = document.getElementById('reader-meta');
-            const container = document.getElementById('reader-container');
-            
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            
-            meta.innerHTML = `
-                <img src="${book.cover_url}" class="w-8 h-12 object-cover rounded shadow-md">
-                <div>
-                    <h2 class="font-black text-black leading-none">${book.title}</h2>
-                    <p class="text-[9px] text-teal-600 font-black uppercase mt-1 tracking-widest">${book.author}</p>
-                </div>
-            `;
-
-            const isEPUB = book.file_url.toLowerCase().includes('.epub');
-            
-            if (isEPUB) {
-                container.innerHTML = `
-                    <div id="epub-viewer"></div>
-                    <div class="absolute bottom-8 left-0 right-0 flex justify-center gap-6 z-20">
-                        <button onclick="epubRendition.prev()" class="bg-white p-5 rounded-full shadow-2xl text-teal-600 hover:scale-110 active:scale-95 transition-all">
-                            <i class="fa-solid fa-chevron-left text-xl"></i>
-                        </button>
-                        <button onclick="epubRendition.next()" class="bg-white p-5 rounded-full shadow-2xl text-teal-600 hover:scale-110 active:scale-95 transition-all">
-                            <i class="fa-solid fa-chevron-right text-xl"></i>
+                timerHtml = `
+                    <div class="card text-center relative" style="padding: 3rem 1rem; border-color: ${config.color};">
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: ${config.color}; animation: pulse 2s infinite;"></div>
+                        <p class="text-secondary text-xs uppercase tracking-wider mb-2">Em andamento</p>
+                        <h3 class="text-3xl font-bold mb-4" style="color: ${config.color}">${config.label}</h3>
+                        <div class="text-3xl font-mono font-bold text-white mb-8">${formatTime(elapsed)}</div>
+                        <button onclick="stopSession()" class="btn btn-danger w-full">
+                            ⏹ Parar Atividade
                         </button>
                     </div>
                 `;
-                const epub = ePub(book.file_url);
-                epubRendition = epub.renderTo("epub-viewer", {
-                    width: "100%", height: "100%", flow: "scrolled", manager: "continuous"
-                });
-                epubRendition.display();
             } else {
-                container.innerHTML = `<iframe src="${book.file_url}" class="w-full h-full border-none"></iframe>`;
+                timerHtml = `
+                    <div class="card text-center py-8">
+                        <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--text-secondary);">⏱</div>
+                        <p class="text-secondary">Nenhuma atividade em andamento</p>
+                        <p class="text-secondary text-xs mt-1">Selecione abaixo para iniciar</p>
+                    </div>
+                `;
             }
-        };
 
-        window.closeReader = () => {
-            const modal = document.getElementById('reader-modal');
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            document.getElementById('reader-container').innerHTML = '';
-            if (epubRendition) {
-                epubRendition.destroy();
-                epubRendition = null;
+            const buttonsHtml = Object.keys(ACTIVITY_CONFIG).map(type => {
+                const config = ACTIVITY_CONFIG[type];
+                const disabled = !!state.currentSessionId;
+                return `
+                    <button 
+                        onclick="startSession('${type}')" 
+                        class="activity-btn" 
+                        ${disabled ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}
+                    >
+                        <div class="activity-icon" style="background: ${config.color}20; color: ${config.color};">
+                            ${config.icon}
+                        </div>
+                        <span class="font-bold text-sm text-white">${config.label}</span>
+                    </button>
+                `;
+            }).join('');
+
+            return `
+                <h2 class="text-2xl font-bold text-white mb-4">Cronómetro</h2>
+                ${timerHtml}
+                <div class="activity-grid mt-4">
+                    ${buttonsHtml}
+                </div>
+            `;
+        }
+
+        function renderDataControl() {
+            const state = store.state;
+            const plan = state.dataPlan;
+            
+            const totalMB = plan.totalDataGB * 1024;
+            let consumedMB = plan.manualConsumedMB;
+            
+            if (plan.useEstimation) {
+                // Simple estimation: sum all social sessions since purchase date
+                const purchaseDate = new Date(plan.purchaseDate);
+                const socialSessions = state.sessions.filter(s => 
+                    s.type === 'social' && new Date(s.date) >= purchaseDate
+                );
+                const totalSocialHours = socialSessions.reduce((acc, s) => acc + (s.duration / 3600), 0);
+                const estimatedConsumption = totalSocialHours * plan.estimatedMBPerHour;
+                consumedMB = Math.max(consumedMB, estimatedConsumption);
             }
-        };
 
-        // Iniciar App
-        init();
+            const remainingMB = Math.max(0, totalMB - consumedMB);
+            const percentUsed = totalMB > 0 ? Math.min(100, (consumedMB / totalMB) * 100) : 0;
+            
+            // Estimate days remaining
+            const daysSincePurchase = Math.max(1, Math.floor((Date.now() - new Date(plan.purchaseDate).getTime()) / (1000 * 60 * 60 * 24)));
+            const avgDailyUsageMB = consumedMB / daysSincePurchase;
+            const estimatedDaysRemaining = avgDailyUsageMB > 0 ? Math.floor(remainingMB / avgDailyUsageMB) : null;
+
+            return `
+                <h2 class="text-2xl font-bold text-white mb-4">Dados Móveis</h2>
+                
+                <div class="card">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-secondary text-sm">Dados Restantes</p>
+                            <h3 class="text-3xl font-bold text-white">
+                                ${(remainingMB / 1024).toFixed(2)} <span class="text-sm text-secondary">GB</span>
+                            </h3>
+                        </div>
+                        <div style="font-size: 1.5rem; color: ${percentUsed > 90 ? 'var(--accent-red)' : 'var(--accent-green)'}">
+                            📶
+                        </div>
+                    </div>
+                    <div class="progress-bg mb-2">
+                        <div class="progress-fill" style="width: ${percentUsed}%; background-color: ${percentUsed > 90 ? 'var(--accent-red)' : 'var(--accent-blue)'}"></div>
+                    </div>
+                    <p class="text-xs text-secondary text-right">${percentUsed.toFixed(1)}% consumido</p>
+                    
+                    ${estimatedDaysRemaining !== null ? `
+                        <p class="text-xs text-secondary mt-2">
+                            Estimativa: <span class="text-white font-bold">${estimatedDaysRemaining} dias</span> restantes
+                        </p>
+                    ` : ''}
+                </div>
+
+                <div class="card">
+                    <h3 class="font-bold text-white mb-4">Configurar Pacote</h3>
+                    <div class="input-group">
+                        <label class="input-label">Dados Comprados (GB)</label>
+                        <input type="number" class="input-field" value="${plan.totalDataGB}" onchange="updatePlan('totalDataGB', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Valor Pago (MT)</label>
+                        <input type="number" class="input-field" value="${plan.cost}" onchange="updatePlan('cost', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Data da Compra</label>
+                        <input type="date" class="input-field" value="${plan.purchaseDate.split('T')[0]}" onchange="updatePlan('purchaseDate', this.value)">
+                    </div>
+                    <div class="input-group flex items-center gap-2">
+                        <input type="checkbox" ${plan.useEstimation ? 'checked' : ''} onchange="updatePlan('useEstimation', this.checked)">
+                        <label class="text-secondary text-sm">Estimar consumo por tempo online</label>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGoals() {
+            const state = store.state;
+            const goals = state.goals;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const todaySessions = state.sessions.filter(s => s.date === today);
+            
+            const socialMinutes = todaySessions
+                .filter(s => s.type === 'social')
+                .reduce((acc, s) => acc + s.duration, 0) / 60;
+                
+            const studyMinutes = todaySessions
+                .filter(s => s.type === 'study')
+                .reduce((acc, s) => acc + s.duration, 0) / 60;
+
+            const socialStatus = socialMinutes <= goals.maxSocialMediaMinutes;
+            const studyStatus = studyMinutes >= goals.minStudyMinutes;
+
+            return `
+                <h2 class="text-2xl font-bold text-white mb-4">Metas & Limites</h2>
+
+                <div class="card flex justify-between items-center" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05)); border-color: rgba(245, 158, 11, 0.2);">
+                    <div>
+                        <p class="text-sm font-bold uppercase tracking-wider" style="color: var(--accent-amber)">Sequência</p>
+                        <h3 class="text-3xl font-bold text-white mt-1">${state.streak} <span class="text-sm font-normal text-secondary">dias</span></h3>
+                    </div>
+                    <div style="font-size: 2rem;">🎯</div>
+                </div>
+
+                <div class="card" style="border-color: ${socialStatus ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="font-bold text-white">Redes Sociais</h4>
+                        <span>${socialStatus ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-sm text-secondary mb-2">${Math.round(socialMinutes)} / ${goals.maxSocialMediaMinutes} min</p>
+                    <div class="progress-bg">
+                        <div class="progress-fill" style="width: ${Math.min(100, (socialMinutes / goals.maxSocialMediaMinutes) * 100)}%; background-color: ${socialStatus ? 'var(--accent-green)' : 'var(--accent-red)'}"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="font-bold text-white mb-4">Definir Metas</h3>
+                    <div class="input-group">
+                        <label class="input-label">Máx. Redes Sociais (min)</label>
+                        <input type="number" class="input-field" value="${goals.maxSocialMediaMinutes}" onchange="updateGoal('maxSocialMediaMinutes', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Mín. Estudo (min)</label>
+                        <input type="number" class="input-field" value="${goals.minStudyMinutes}" onchange="updateGoal('minStudyMinutes', this.value)">
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderReports() {
+            return `
+                <h2 class="text-2xl font-bold text-white mb-4">Relatórios</h2>
+                
+                <div class="card">
+                    <h3 class="text-sm text-secondary mb-2">Horas Totais (7 dias)</h3>
+                    <canvas id="chart-hours" height="200"></canvas>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-sm text-secondary mb-2">Produtividade (%)</h3>
+                    <canvas id="chart-prod" height="200"></canvas>
+                </div>
+
+                <div class="card mt-4">
+                    <button onclick="store.export()" class="btn w-full mb-2">📥 Exportar Backup</button>
+                    <button onclick="store.reset()" class="btn btn-danger w-full">🗑 Resetar Tudo</button>
+                </div>
+            `;
+        }
+
+        // --- ACTIONS ---
+
+        function startSession(type) {
+            const id = Date.now().toString(36) + Math.random().toString(36).substr(2);
+            const newSession = {
+                id,
+                type,
+                startTime: Date.now(),
+                endTime: null,
+                duration: 0,
+                date: new Date().toISOString().split('T')[0],
+            };
+            store.update(prev => ({
+                sessions: [...prev.sessions, newSession],
+                currentSessionId: id
+            }));
+        }
+
+        function stopSession() {
+            const state = store.state;
+            if (!state.currentSessionId) return;
+            
+            store.update(prev => {
+                const sessions = prev.sessions.map(s => {
+                    if (s.id === prev.currentSessionId) {
+                        const endTime = Date.now();
+                        return {
+                            ...s,
+                            endTime,
+                            duration: Math.floor((endTime - s.startTime) / 1000),
+                        };
+                    }
+                    return s;
+                });
+                return { sessions, currentSessionId: null };
+            });
+        }
+
+        function updatePlan(field, value) {
+            const val = field === 'useEstimation' ? value : (field === 'purchaseDate' ? new Date(value).toISOString() : Number(value));
+            store.update(prev => ({
+                dataPlan: { ...prev.dataPlan, [field]: val }
+            }));
+        }
+
+        function updateGoal(field, value) {
+            store.update(prev => ({
+                goals: { ...prev.goals, [field]: Number(value) }
+            }));
+        }
+
+        // --- CHARTING ---
+        function drawCharts() {
+            const state = store.state;
+            const canvasHours = document.getElementById('chart-hours');
+            const canvasProd = document.getElementById('chart-prod');
+            
+            if (!canvasHours || !canvasProd) return;
+
+            const last7Days = Array.from({ length: 7 }, (_, i) => {
+                const d = new Date();
+                d.setDate(d.getDate() - (6 - i));
+                return d.toISOString().split('T')[0];
+            });
+
+            const labels = last7Days.map(date => {
+                const d = new Date(date);
+                return `${d.getDate()}/${d.getMonth() + 1}`;
+            });
+
+            // Hours Data
+            const hoursData = last7Days.map(date => {
+                const daySessions = state.sessions.filter(s => s.date === date);
+                return daySessions.reduce((acc, s) => acc + s.duration, 0) / 3600;
+            });
+
+            drawBarChart(canvasHours, hoursData, labels, '#3b82f6');
+
+            // Productivity Data
+            const prodData = last7Days.map(date => {
+                const daySessions = state.sessions.filter(s => s.date === date);
+                if (daySessions.length === 0) return 0;
+                const prodSec = daySessions.filter(s => ACTIVITY_CONFIG[s.type].isProductive).reduce((acc, s) => acc + s.duration, 0);
+                const totalSec = daySessions.reduce((acc, s) => acc + s.duration, 0);
+                return (prodSec / totalSec) * 100;
+            });
+
+            drawLineChart(canvasProd, prodData, labels, '#10b981');
+        }
+
+        function drawBarChart(canvas, data, labels, color) {
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = 200;
+            const padding = 30;
+            const maxVal = Math.max(...data, 1);
+
+            ctx.clearRect(0, 0, width, height);
+            
+            const barWidth = (width - padding * 2) / data.length - 10;
+
+            data.forEach((val, i) => {
+                const h = (val / maxVal) * (height - padding * 2);
+                const x = padding + i * ((width - padding * 2) / data.length) + 5;
+                const y = height - padding - h;
+
+                ctx.fillStyle = color;
+                ctx.fillRect(x, y, barWidth, h);
+
+                ctx.fillStyle = '#a1a1aa';
+                ctx.font = '10px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(labels[i], x + barWidth / 2, height - 10);
+                
+                ctx.fillStyle = '#fff';
+                ctx.fillText(val.toFixed(1), x + barWidth / 2, y - 5);
+            });
+        }
+
+        function drawLineChart(canvas, data, labels, color) {
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = 200;
+            const padding = 30;
+            const maxVal = 100;
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+
+            data.forEach((val, i) => {
+                const x = padding + i * ((width - padding * 2) / (data.length - 1));
+                const y = height - padding - (val / maxVal) * (height - padding * 2);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+                
+                // Draw point
+                // ctx.fillStyle = color;
+                // ctx.beginPath();
+                // ctx.arc(x, y, 3, 0, Math.PI * 2);
+                // ctx.fill();
+
+                ctx.fillStyle = '#a1a1aa';
+                ctx.font = '10px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(labels[i], x, height - 10);
+            });
+            ctx.stroke();
+        }
+
+        // --- RENDER LOOP ---
+        function render() {
+            const app = document.getElementById('app-content');
+            const view = router.currentView;
+            
+            if (view === 'dashboard') app.innerHTML = renderDashboard();
+            else if (view === 'timer') app.innerHTML = renderTimer();
+            else if (view === 'data') app.innerHTML = renderDataControl();
+            else if (view === 'goals') app.innerHTML = renderGoals();
+            else if (view === 'reports') {
+                app.innerHTML = renderReports();
+                requestAnimationFrame(drawCharts);
+            }
+        }
+
+        // Initialize
+        store.subscribe(render);
+        render();
+
+        // Timer Loop
+        setInterval(() => {
+            if (store.state.currentSessionId) {
+                render(); // Re-render to update timer
+            }
+        }, 1000);
 
     </script>
 </body>

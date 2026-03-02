@@ -798,7 +798,11 @@
         // Timer Loop
         setInterval(() => {
             if (store.state.currentSessionId) {
-                render(); // Re-render to update timer
+                // Only re-render if the current view actually displays the timer (dashboard or timer view)
+                // This prevents inputs in 'data' or 'goals' views from losing focus due to re-renders
+                if (router.currentView === 'dashboard' || router.currentView === 'timer') {
+                    render();
+                }
             }
         }, 1000);
 
